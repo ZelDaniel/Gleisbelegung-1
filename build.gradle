@@ -13,7 +13,7 @@ apply plugin: 'application'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-mainClassName = 'org.gleisbelegung.Gleisbelegung'
+mainClassName = 'org.gleisbelegung.Plugin'
 version = '0.0.1'
 
 /*

@@ -32,8 +32,11 @@ public class WindowController {
 
         Scene scene = window.init();
         scene.getStylesheets().add("ui/style.css");
+
         stage.setScene(scene);
         stage.show();
+
+        window.onResize(stage.getWidth(), stage.getHeight());
     }
 
     private void setEvents(){

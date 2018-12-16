@@ -1,5 +1,6 @@
 package org.gleisbelegung.ui.window;
 
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.gleisbelegung.Plugin;
@@ -18,15 +19,20 @@ public class WindowController {
         this.window = window;
 
         init(title);
-        setIcon();
         setEvents();
     }
 
     private void init(String title){
         stage.setResizable(true);
         stage.setTitle(title);
+        stage.getIcons().add(new Image("icon.png"));
 
-        stage.setScene(window.init());
+        stage.setMinWidth(1250);
+        stage.setMinHeight(700);
+
+        Scene scene = window.init();
+        scene.getStylesheets().add("ui/style.css");
+        stage.setScene(scene);
         stage.show();
     }
 
@@ -47,21 +53,5 @@ public class WindowController {
         stage.setOnCloseRequest((e) -> {
             window.onClose();
         });
-    }
-
-    private void setIcon(){
-        try {
-            stage.getIcons().add(new Image(Plugin.class.getResourceAsStream(
-                    "icon.png")));
-        } catch (Exception e) {
-            try {
-                File f = new File("src/main/resources/icon.png");
-                stage.getIcons().add(new Image(new FileInputStream(f)));
-
-            } catch (Exception e1) {
-                e.printStackTrace();
-                e1.printStackTrace();
-            }
-        }
     }
 }

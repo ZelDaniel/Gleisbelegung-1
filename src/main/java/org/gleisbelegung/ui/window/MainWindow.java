@@ -1,10 +1,11 @@
 package org.gleisbelegung.ui.window;
 
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
 
 public class MainWindow implements WindowInterface {
     WindowController controller;
@@ -14,10 +15,18 @@ public class MainWindow implements WindowInterface {
     }
 
     @Override public Scene init() {
-        Pane pane = new BorderPane();
-        pane.setStyle("-fx-background-color: #303030;");
+        BorderPane bp = new BorderPane();
+        bp.setStyle("-fx-background-color: #303030;");
 
-        Scene scene = new Scene(pane);
+        Button b = new Button("Dies ist ein Test Button");
+        b.getStyleClass().add("custom");
+
+
+        Pane pane = new Pane(b);
+
+        bp.setCenter(pane);
+
+        Scene scene = new Scene(bp);
         return scene;
     }
 

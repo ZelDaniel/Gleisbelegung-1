@@ -1,32 +1,22 @@
-package org.gleisbelegung.ui.window;
+package org.gleisbelegung.ui.panel.plugin;
 
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import org.gleisbelegung.ui.node.ButtonFactory;
 import org.gleisbelegung.ui.node.LabelFactory;
-import org.gleisbelegung.ui.style.Style;
+import org.gleisbelegung.ui.panel.PanelInterface;
 
-public class MainWindow implements WindowInterface {
-    private WindowController controller;
+public class InformationPanel implements PanelInterface {
     private Button settings;
     private Button restart;
     private Button changeView;
     private Label nextRefresh;
     private Label gameTime;
+    private Pane pane;
 
-    public MainWindow(Stage stage){
-        controller = new WindowController(this, stage, "Gleisbelegung");
-    }
-
-    @Override public Scene init() {
-        BorderPane bp = new BorderPane();
-        Style.applyClass(bp, "dark_gray");
-
-
+    @Override
+    public Pane init() {
         settings = ButtonFactory.create("Einstellungen", 16);
         restart = ButtonFactory.create("Neustart", 16);
         changeView = ButtonFactory.create("Sichtwechsel", 16);
@@ -34,15 +24,19 @@ public class MainWindow implements WindowInterface {
         nextRefresh = LabelFactory.create("Aktualiesierung in x Sekunden", 16);
         gameTime = LabelFactory.create("Spielzeit: hh:mm", 16);
 
-        Pane pane = new Pane(restart, settings, changeView, nextRefresh, gameTime);
-
-        bp.setCenter(pane);
-
-        Scene scene = new Scene(bp);
-        return scene;
+        pane = new Pane(restart, settings, changeView, nextRefresh, gameTime);
+        return pane;
     }
 
-    @Override public void onResize(double width, double height) {
+    @Override
+    public void setSizes() {
+        pane.setPrefHeight(pane.getHeight() + 20);
+    }
+
+    @Override
+    public void onResize(double width, double height) {
+//        pane.setPrefHeight(pane.getHeight() + 20);
+
         restart.setTranslateX(width/2.0 - restart.getWidth()/2.0 - settings.getWidth());
         restart.setTranslateY(10);
 
@@ -59,15 +53,13 @@ public class MainWindow implements WindowInterface {
         gameTime.setTranslateY(15);
     }
 
-    @Override public void onMaximize() {
+    @Override
+    public void onHide() {
 
     }
 
-    @Override public void onMinimize() {
-
-    }
-
-    @Override public void onClose() {
+    @Override
+    public void onVisible() {
 
     }
 }

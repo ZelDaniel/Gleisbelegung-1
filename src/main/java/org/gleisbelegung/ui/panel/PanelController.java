@@ -1,5 +1,7 @@
 package org.gleisbelegung.ui.panel;
 
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
@@ -26,7 +28,10 @@ public class PanelController {
      */
     public Pane addPanel(PanelInterface panel) {
         panels.add(panel);
-        return panel.init();
+
+        Pane pane = panel.init();
+        pane.setOnMouseClicked(e -> onMouseClicked(pane, panel, e));
+        return pane;
     }
 
     /**
@@ -57,6 +62,18 @@ public class PanelController {
     private void loopAll(Consumer<PanelInterface> consumer) {
         for (PanelInterface panel : panels) {
             consumer.accept(panel);
+        }
+    }
+
+    private void onMouseClicked(Pane pane, PanelInterface panel, MouseEvent e){
+        if(e.getButton() == MouseButton.PRIMARY){
+            pane.setPrefWidth(pane.getWidth() + 10);
+            pane.setPrefHeight(pane.getHeight() + 10);
+        } else if(e.getButton() == MouseButton.SECONDARY){
+            pane.setPrefWidth(pane.getWidth() - 10);
+            pane.setPrefHeight(pane.getHeight() - 10);
+        } else if(e.getButton() == MouseButton.MIDDLE){
+            panel.setSizes();
         }
     }
 }

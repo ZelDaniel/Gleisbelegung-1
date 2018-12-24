@@ -29,11 +29,12 @@ public class InformationPanel implements PanelInterface {
         gameTime = LabelFactory.create("Spielzeit: hh:mm", 16);
 
         pane = new Pane(restart, settings, changeView, nextRefresh, gameTime);
+
         return pane;
     }
 
     @Override public void setSizes() {
-        pane.setPrefHeight(pane.getHeight() + 20);
+        pane.setPrefHeight(60);
     }
 
     @Override public void onResize(double width, double height) {

@@ -37,7 +37,6 @@ public class PluginWindow implements WindowInterface {
         Pane tablePanel = controller.addPanel(table);
         bp.setCenter(tablePanel);
 
-
         trainInformation = new TrainInformationPanel();
         Pane trainPanel = controller.addPanel(trainInformation);
         bp.setRight(trainPanel);

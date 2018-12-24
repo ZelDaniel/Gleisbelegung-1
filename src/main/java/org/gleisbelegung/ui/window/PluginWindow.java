@@ -1,20 +1,18 @@
 package org.gleisbelegung.ui.window;
 
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.gleisbelegung.ui.node.ButtonFactory;
-import org.gleisbelegung.ui.node.LabelFactory;
 import org.gleisbelegung.ui.panel.plugin.InformationPanel;
 import org.gleisbelegung.ui.panel.plugin.StatusPanel;
 import org.gleisbelegung.ui.panel.plugin.TablePanel;
 import org.gleisbelegung.ui.panel.plugin.TrainInformationPanel;
 import org.gleisbelegung.ui.style.Style;
 
+
 public class PluginWindow implements WindowInterface {
+
     private WindowController controller;
 
     private TablePanel table;
@@ -22,7 +20,7 @@ public class PluginWindow implements WindowInterface {
     private TrainInformationPanel trainInformation;
     private StatusPanel status;
 
-    public PluginWindow(Stage stage){
+    public PluginWindow(Stage stage) {
         controller = new WindowController(this, stage);
         controller.init("Gleisbelegung", 1250, 700);
     }

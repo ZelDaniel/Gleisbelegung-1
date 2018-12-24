@@ -2,6 +2,7 @@ package org.gleisbelegung.ui.window;
 
 import javafx.scene.Scene;
 
+
 /**
  * interface which should be implemented by every Window
  */
@@ -18,7 +19,7 @@ public interface WindowInterface {
     /**
      * called after a resize/maximize/minimize of the {@link javafx.stage.Stage Stage}
      *
-     * @param width the absolte width of the {@link javafx.stage.Stage Stage}
+     * @param width  the absolte width of the {@link javafx.stage.Stage Stage}
      * @param height the absolte height of the {@link javafx.stage.Stage Stage}
      */
     void onResize(double width, double height);

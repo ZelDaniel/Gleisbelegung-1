@@ -2,6 +2,7 @@ package org.gleisbelegung.ui.panel;
 
 import javafx.scene.layout.Pane;
 
+
 /**
  * Interface for Panels in order to bundle the most common actions
  */
@@ -23,7 +24,7 @@ public interface PanelInterface {
     /**
      * called on onResize by PanelController
      *
-     * @param width new width
+     * @param width  new width
      * @param height new height
      */
     void onResize(double width, double height);

@@ -8,12 +8,13 @@ import org.gleisbelegung.ui.panel.PanelController;
 import org.gleisbelegung.ui.panel.PanelInterface;
 
 
-public class WindowController{
+public class WindowController {
+
     private WindowInterface window;
     private PanelController panelController;
     private Stage stage;
 
-    public WindowController(WindowInterface window, Stage stage){
+    public WindowController(WindowInterface window, Stage stage) {
         this.stage = stage;
         this.window = window;
 
@@ -28,18 +29,18 @@ public class WindowController{
      * @param panel
      * @return initialized and styled {@link javafx.scene.layout.Pane Pane}
      */
-    public Pane addPanel(PanelInterface panel){
+    public Pane addPanel(PanelInterface panel) {
         return panelController.addPanel(panel);
     }
 
     /**
      * intitialize and show the {@link WindowInterface window}
      *
-     * @param title title of the window
-     * @param width the initial and min with of the {@link WindowInterface window}
+     * @param title  title of the window
+     * @param width  the initial and min with of the {@link WindowInterface window}
      * @param height the initial and min height of the {@link WindowInterface window}
      */
-    public void init(String title, double width, double height){
+    public void init(String title, double width, double height) {
         stage.setResizable(true);
         stage.setTitle(title);
         stage.getIcons().add(new Image("icon.png"));
@@ -62,7 +63,7 @@ public class WindowController{
     /**
      * set the action listener for the {@link WindowInterface} events
      */
-    private void setEvents(){
+    private void setEvents() {
         stage.widthProperty().addListener((obs, oldVal, newVal) -> {
             window.onResize(newVal.doubleValue(), stage.getHeight());
             panelController.onResize(newVal.doubleValue(), stage.getHeight());
@@ -74,8 +75,10 @@ public class WindowController{
         });
 
         stage.maximizedProperty().addListener((obs, oldVal, newVal) -> {
-            if(newVal) window.onMaximize();
-            else window.onMinimize();
+            if (newVal)
+                window.onMaximize();
+            else
+                window.onMinimize();
         });
 
         stage.setOnCloseRequest((e) -> {

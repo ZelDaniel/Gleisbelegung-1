@@ -4,6 +4,7 @@ import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 import org.gleisbelegung.ui.style.Style;
 
+
 public class LabelFactory {
 
     /**
@@ -13,7 +14,7 @@ public class LabelFactory {
      * @param fontSize
      * @return intitialized and style JavaFX Label
      */
-    public static Label create(String text, int fontSize){
+    public static Label create(String text, int fontSize) {
         Label l = new Label(text);
 
         l.setFont(Font.font(fontSize));

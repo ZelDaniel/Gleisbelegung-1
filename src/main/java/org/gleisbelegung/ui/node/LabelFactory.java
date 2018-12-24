@@ -6,6 +6,13 @@ import org.gleisbelegung.ui.style.Style;
 
 public class LabelFactory {
 
+    /**
+     * Helper for creating Labels
+     *
+     * @param text
+     * @param fontSize
+     * @return intitialized and style JavaFX Label
+     */
     public static Label create(String text, int fontSize){
         Label l = new Label(text);
 

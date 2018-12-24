@@ -14,6 +14,10 @@ public interface PanelInterface {
      */
     Pane init();
 
+    /**
+     * set the with and height of the pane and all subelements here. <br>
+     * This is an external Method because i.e. pane.getPrefHeight() is giving 0 in the init Method because its not added to the Stage at this moment
+     */
     void setSizes();
 
     /**

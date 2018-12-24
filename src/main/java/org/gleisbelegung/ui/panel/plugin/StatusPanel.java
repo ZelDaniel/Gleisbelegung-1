@@ -3,6 +3,9 @@ package org.gleisbelegung.ui.panel.plugin;
 import javafx.scene.layout.Pane;
 import org.gleisbelegung.ui.panel.PanelInterface;
 
+/**
+ * Represents the Panel at the bottom of the {@link org.gleisbelegung.ui.window.PluginWindow}
+ */
 public class StatusPanel implements PanelInterface {
     Pane pane;
 

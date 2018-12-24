@@ -3,6 +3,9 @@ package org.gleisbelegung.ui.panel.plugin;
 import javafx.scene.layout.Pane;
 import org.gleisbelegung.ui.panel.PanelInterface;
 
+/**
+ * Represents the Panel at the right of the {@link org.gleisbelegung.ui.window.PluginWindow}
+ */
 public class TrainInformationPanel implements PanelInterface {
     Pane pane;
 

@@ -7,6 +7,9 @@ import org.gleisbelegung.ui.node.ButtonFactory;
 import org.gleisbelegung.ui.node.LabelFactory;
 import org.gleisbelegung.ui.panel.PanelInterface;
 
+/**
+ * Represents the Panel at the top of the {@link org.gleisbelegung.ui.window.PluginWindow}
+ */
 public class InformationPanel implements PanelInterface {
     private Button settings;
     private Button restart;

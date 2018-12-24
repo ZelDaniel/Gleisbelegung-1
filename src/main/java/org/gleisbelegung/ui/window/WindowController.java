@@ -22,10 +22,23 @@ public class WindowController{
         setEvents();
     }
 
+    /**
+     * Adds a {@link org.gleisbelegung.ui.panel.PanelInterface Panel} to a Window
+     *
+     * @param panel
+     * @return initialized and styled {@link javafx.scene.layout.Pane Pane}
+     */
     public Pane addPanel(PanelInterface panel){
         return panelController.addPanel(panel);
     }
 
+    /**
+     * intitialize and show the {@link WindowInterface window}
+     *
+     * @param title title of the window
+     * @param width the initial and min with of the {@link WindowInterface window}
+     * @param height the initial and min height of the {@link WindowInterface window}
+     */
     public void init(String title, double width, double height){
         stage.setResizable(true);
         stage.setTitle(title);
@@ -46,6 +59,9 @@ public class WindowController{
         panelController.onResize(stage.getWidth(), stage.getHeight());
     }
 
+    /**
+     * set the action listener for the {@link WindowInterface} events
+     */
     private void setEvents(){
         stage.widthProperty().addListener((obs, oldVal, newVal) -> {
             window.onResize(newVal.doubleValue(), stage.getHeight());

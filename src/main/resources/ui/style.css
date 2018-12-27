@@ -1,0 +1,27 @@
+.button {
+    -fx-background-color: #AAAAAA;
+}
+
+.button:hover{
+    -fx-background-color: #909090;
+}
+
+.button:pressed{
+    -fx-background-color: #707070;
+}
+
+.button:disabled{
+    -fx-background-color: #606060;
+    -fx-text-fill: #fff
+}
+
+
+
+
+.dark_gray{
+    -fx-background-color: #303030;
+}
+
+.text_color{
+    -fx-text-fill: #fff;
+}

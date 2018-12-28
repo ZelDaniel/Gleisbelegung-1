@@ -65,14 +65,14 @@ public class PanelController {
         }
     }
 
-    private void onMouseClicked(Pane pane, PanelInterface panel, MouseEvent e){
-        if(e.getButton() == MouseButton.PRIMARY){
+    private void onMouseClicked(Pane pane, PanelInterface panel, MouseEvent e) {
+        if (e.getButton() == MouseButton.PRIMARY) {
             pane.setPrefWidth(pane.getWidth() + 10);
             pane.setPrefHeight(pane.getHeight() + 10);
-        } else if(e.getButton() == MouseButton.SECONDARY){
+        } else if (e.getButton() == MouseButton.SECONDARY) {
             pane.setPrefWidth(pane.getWidth() - 10);
             pane.setPrefHeight(pane.getHeight() - 10);
-        } else if(e.getButton() == MouseButton.MIDDLE){
+        } else if (e.getButton() == MouseButton.MIDDLE) {
             panel.setSizes();
         }
     }

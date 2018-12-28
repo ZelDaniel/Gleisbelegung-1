@@ -19,8 +19,6 @@ public class WindowController {
         this.window = window;
 
         panelController = new PanelController();
-
-        setEvents();
     }
 
     /**
@@ -47,6 +45,8 @@ public class WindowController {
 
         stage.setMinWidth(width);
         stage.setMinHeight(height);
+        stage.setWidth(width);
+        stage.setHeight(height);
 
         Scene scene = window.init();
         scene.getStylesheets().add("ui/style.css");
@@ -58,6 +58,12 @@ public class WindowController {
 
         window.onResize(stage.getWidth(), stage.getHeight());
         panelController.onResize(stage.getWidth(), stage.getHeight());
+
+        setEvents();
+    }
+
+    public void close() {
+        stage.close();
     }
 
     /**

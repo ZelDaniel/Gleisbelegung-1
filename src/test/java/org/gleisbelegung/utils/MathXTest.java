@@ -14,7 +14,7 @@ public class MathXTest
         assertFalse(MathX.isPrime(4));
         assertFalse(MathX.isPrime(25));
         assertFalse(MathX.isPrime(1024));
-        assertFalse(MathX.isPrime(2 ^ 30 - 1));
+        assertFalse(MathX.isPrime((int) Math.pow(2, 20) - 1));
     }
 
     @Test(expected = IllegalArgumentException.class)

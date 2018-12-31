@@ -88,3 +88,36 @@ repositories {
 dependencies {
     testCompile 'junit:junit:4.12'
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            includes = [
+              //'org.gleisbelegung.collection.*',
+              //'org.gleisbelegung.sts.*',
+              'org.gleisbelegung.utils.*'
+            ]
+            limit {
+                minimum = 0.9
+            }
+        }
+        rule {
+            element = 'CLASS'
+            enabled = false
+            includes = ['org.gleisbelegung.ui']
+            limit {
+                counter = 'LINE'
+                minimum = 0.3
+            }
+        }
+        rule {
+            element = 'CLASS'
+            enabled = false
+            includes = ['org.gleisbelegung.*']
+            limit {
+                minimum = 0.4
+            }
+        }
+    }
+}

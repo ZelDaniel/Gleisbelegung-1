@@ -21,6 +21,7 @@ public class XmlSocket {
 
     public void write(XML xml) throws IOException {
          socket.getOutputStream().write(xml.getBytes(Charset.defaultCharset()));
+         socket.getOutputStream().write(10);
          socket.getOutputStream().flush();
     }
 }

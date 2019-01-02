@@ -1,11 +1,9 @@
 package org.gleisbelegung;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -67,7 +65,7 @@ public class Plugin extends Application {
             private boolean tryConnect(Socket socket) throws IOException {
                 socket.bind(null);
                 try {
-                    socket.connect(new InetSocketAddress("localhost", StSSocket.PORT), CONNECT_TIMEOUT);
+                    socket.connect(new InetSocketAddress("localhost", StsSocket.PORT), CONNECT_TIMEOUT);
                 } catch (SocketException e) {
                     return false;
                 }
@@ -76,24 +74,26 @@ public class Plugin extends Application {
             }
 
             private void handleInput(Socket socket) {
-                stSSocket = new StSSocket(socket);
+                stSSocket = new StsSocket(socket);
 
-                try {
-                    final XML readXml = stSSocket.read();
-                    if (readXml == null) {
-                        socket.close();
-                        return;
+                while(true) {
+                    try {
+                        final XML readXml = stSSocket.read();
+                        if (readXml == null) {
+                            socket.close();
+                            return;
+                        }
+                        switch (readXml.getKey()) {
+                            case "status":
+                                handleStatus(readXml);
+                        }
+                    } catch (Exception e) {
+                        if (socket.isClosed()) {
+                            System.out.println("Socket closed");
+                            return;
+                        }
+                        e.printStackTrace();// TODO error handling
                     }
-                    switch (readXml.getKey()) {
-                        case "status":
-                            handleStatus(readXml);
-                    }
-                } catch (Exception e) {
-                    if (socket.isClosed()) {
-                        System.out.println("Socket closed");
-                        return;
-                    }
-                    e.printStackTrace();// TODO error handling
                 }
             }
 
@@ -136,13 +136,6 @@ public class Plugin extends Application {
     }
 
     public static void main(final String[] args) {
-        try {
-            Plugin.launch(Plugin.class, args);
-        } catch (Exception e) {
-            /*if (e.getTargetException().getCause() instanceof InterruptedException) {
-                return;
-            }*/
-            throw e;
-        }
+        Plugin.launch(Plugin.class, args);
     }
 }

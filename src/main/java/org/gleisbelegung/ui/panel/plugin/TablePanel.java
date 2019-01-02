@@ -2,6 +2,8 @@ package org.gleisbelegung.ui.panel.plugin;
 
 import javafx.scene.layout.Pane;
 import org.gleisbelegung.ui.panel.PanelInterface;
+import org.gleisbelegung.ui.style.NodeWrapper;
+import org.gleisbelegung.ui.style.color.BackgroundColor;
 
 
 /**
@@ -9,13 +11,14 @@ import org.gleisbelegung.ui.panel.PanelInterface;
  */
 public class TablePanel implements PanelInterface {
 
-    Pane pane;
+    NodeWrapper<Pane> pane;
 
     @Override public Pane init() {
-        pane = new Pane();
+        pane = new NodeWrapper<>(new Pane());
 
-        pane.setStyle("-fx-background-color: #f00");
-        return pane;
+        pane.addStyle(new BackgroundColor("#f00"));
+
+        return pane.getNode();
     }
 
     @Override public void setSizes() {

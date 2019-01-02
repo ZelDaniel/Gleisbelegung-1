@@ -6,6 +6,7 @@ import javafx.scene.layout.Pane;
 import org.gleisbelegung.ui.node.ButtonFactory;
 import org.gleisbelegung.ui.node.LabelFactory;
 import org.gleisbelegung.ui.panel.PanelInterface;
+import org.gleisbelegung.ui.style.NodeWrapper;
 
 
 /**
@@ -13,12 +14,12 @@ import org.gleisbelegung.ui.panel.PanelInterface;
  */
 public class InformationPanel implements PanelInterface {
 
-    private Button settings;
-    private Button restart;
-    private Button changeView;
-    private Label nextRefresh;
-    private Label gameTime;
-    private Pane pane;
+    private NodeWrapper<Button> settings;
+    private NodeWrapper<Button> restart;
+    private NodeWrapper<Button> changeView;
+    private NodeWrapper<Label> nextRefresh;
+    private NodeWrapper<Label> gameTime;
+    private NodeWrapper<Pane> pane;
 
     @Override public Pane init() {
         settings = ButtonFactory.create("Einstellungen", 16);
@@ -28,36 +29,38 @@ public class InformationPanel implements PanelInterface {
         nextRefresh = LabelFactory.create("Aktualiesierung in x Sekunden", 16);
         gameTime = LabelFactory.create("Spielzeit: hh:mm", 16);
 
-        pane = new Pane(restart, settings, changeView, nextRefresh, gameTime);
+        pane = new NodeWrapper<>(new Pane(restart.getNode(), settings.getNode(),
+                changeView.getNode(), nextRefresh.getNode(),
+                gameTime.getNode()));
 
-        return pane;
+        return pane.getNode();
     }
 
     @Override public void setSizes() {
-        pane.setPrefHeight(60);
+        pane.getNode().setPrefHeight(60);
     }
 
     @Override public void onResize(double width, double height) {
-        //        pane.setPrefHeight(pane.getHeight() + 20);
+        restart.getNode().setTranslateX(
+                width / 2.0 - settings.getNode().getWidth() / 2.0 - restart
+                        .getNode().getWidth() - 15);
+        restart.getNode().setTranslateY(10);
 
-        restart.setTranslateX(
-                width / 2.0 - restart.getWidth() / 2.0 - settings.getWidth());
-        restart.setTranslateY(10);
+        settings.getNode().setTranslateX(
+                width / 2.0 - settings.getNode().getWidth() / 2.0);
+        settings.getNode().setTranslateY(10);
 
-        settings.setTranslateX(width / 2.0 - settings.getWidth() / 2.0);
-        settings.setTranslateY(10);
+        changeView.getNode().setTranslateX(
+                width / 2.0 - changeView.getNode().getWidth() / 2.0 + settings
+                        .getNode().getWidth() + 15);
+        changeView.getNode().setTranslateY(10);
 
-        changeView.setTranslateX(
-                width / 2.0 - changeView.getWidth() / 2.0 + settings.getWidth()
-                        + 15);
-        changeView.setTranslateY(10);
-
-        nextRefresh.setTranslateX(width - nextRefresh.getWidth()
+        nextRefresh.getNode().setTranslateX(width - nextRefresh.getNode().getWidth()
                 * 1.1); //i dont know why i need to multiply with 1.1, but else the text is out of scope
-        nextRefresh.setTranslateY(15);
+        nextRefresh.getNode().setTranslateY(15);
 
-        gameTime.setTranslateX(10);
-        gameTime.setTranslateY(15);
+        gameTime.getNode().setTranslateX(10);
+        gameTime.getNode().setTranslateY(15);
     }
 
     @Override public void onHide() {

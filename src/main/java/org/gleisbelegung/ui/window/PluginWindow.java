@@ -8,7 +8,8 @@ import org.gleisbelegung.ui.panel.plugin.InformationPanel;
 import org.gleisbelegung.ui.panel.plugin.StatusPanel;
 import org.gleisbelegung.ui.panel.plugin.TablePanel;
 import org.gleisbelegung.ui.panel.plugin.TrainInformationPanel;
-import org.gleisbelegung.ui.style.StyleInterface;
+import org.gleisbelegung.ui.style.NodeWrapper;
+import org.gleisbelegung.ui.style.color.BackgroundColor;
 
 
 public class PluginWindow implements WindowInterface {
@@ -27,7 +28,8 @@ public class PluginWindow implements WindowInterface {
 
     @Override public Scene init() {
         BorderPane bp = new BorderPane();
-        //StyleInterface.applyClass(bp, "dark_gray");
+        NodeWrapper nodeWrapper = new NodeWrapper(bp);
+        nodeWrapper.addStyle(new BackgroundColor("#303030"));
 
         informations = new InformationPanel();
         Pane informationPane = controller.addPanel(informations);

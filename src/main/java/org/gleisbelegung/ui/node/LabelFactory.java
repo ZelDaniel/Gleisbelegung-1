@@ -2,7 +2,8 @@ package org.gleisbelegung.ui.node;
 
 import javafx.scene.control.Label;
 import javafx.scene.text.Font;
-import org.gleisbelegung.ui.style.StyleInterface;
+import org.gleisbelegung.ui.style.NodeWrapper;
+import org.gleisbelegung.ui.style.color.TextColor;
 
 
 public class LabelFactory {
@@ -14,12 +15,14 @@ public class LabelFactory {
      * @param fontSize
      * @return intitialized and style JavaFX Label
      */
-    public static Label create(String text, int fontSize) {
+    public static NodeWrapper<Label> create(String text, int fontSize) {
         Label l = new Label(text);
 
         l.setFont(Font.font(fontSize));
-        //StyleInterface.applyClass(l, "text_color");
 
-        return l;
+        NodeWrapper<Label> nodeWrapper = new NodeWrapper<>(l);
+        nodeWrapper.addStyle(new TextColor("#fff"));
+
+        return nodeWrapper;
     }
 }

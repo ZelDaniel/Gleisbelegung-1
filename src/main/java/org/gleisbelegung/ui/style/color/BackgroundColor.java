@@ -1,6 +1,5 @@
-package org.gleisbelegung.ui.style.styles;
+package org.gleisbelegung.ui.style.color;
 
-import javafx.scene.Node;
 import org.gleisbelegung.ui.style.StyleInterface;
 
 public class BackgroundColor implements StyleInterface {

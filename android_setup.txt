@@ -1,0 +1,15 @@
+Gutes Video zur Einrichtung: https://www.youtube.com/watch?v=HJpN1ostdiY&app=desktop 
+Ist aber zu einem großen Teil nicht mehr wichtig, da die meisten Schritte schon gemacht
+
+1.	In der IDE das Gluon-Plugin installieren
+2.	Den SDK Manager hier https://android-sdk.en.uptodown.com/windows/download oder woanders herunterladen und installieren
+3.	Dort folgende Sachen anwählen und installieren (alles andere abwählen)
+	a.	Android SDK Tools
+	b.	Android SDK Platform-tools
+	c.	Android SDK Build-tools (am besten die neuste)
+	d.	Für Api-Level entscheiden und dort die SDK-Platform herunterladen und installieren (Ich habe zunächst api-level 26 ausgewählt, sollten aber wahrscheinlich eher was niedrigeres wählen)
+	e.	Android Support Repository
+	f.	Google USB Driver
+4.	Anschließend wie im Video das ANDROID_HOME Verzeichnis setzen
+5.	Danach ggf die IDE Neustarten
+6.	Gradle sollte die restlichen Sachen eigentlich von alleine Einrichten

@@ -26,7 +26,7 @@ public class InformationPanel implements PanelInterface {
         restart = ButtonFactory.create("Neustart", 16);
         changeView = ButtonFactory.create("Sichtwechsel", 16);
 
-        nextRefresh = LabelFactory.create("Aktualiesierung in x Sekunden", 16);
+        nextRefresh = LabelFactory.create("Aktualisierung in x Sekunden", 16);
         gameTime = LabelFactory.create("Spielzeit: hh:mm", 16);
 
         pane = new NodeWrapper<>(new Pane(restart.getNode(), settings.getNode(),
@@ -42,21 +42,25 @@ public class InformationPanel implements PanelInterface {
 
     @Override public void onResize(double width, double height) {
         restart.getNode().setTranslateX(
-                width / 2.0 - settings.getNode().getWidth() / 2.0 - restart
-                        .getNode().getWidth() - 15);
+                width / 2.0 - settings.getNode().getWidth() / 2.0
+                        - restart.getNode().getWidth() - 15
+        );
         restart.getNode().setTranslateY(10);
 
         settings.getNode().setTranslateX(
-                width / 2.0 - settings.getNode().getWidth() / 2.0);
+                width / 2.0 - settings.getNode().getWidth() / 2.0
+        );
         settings.getNode().setTranslateY(10);
 
         changeView.getNode().setTranslateX(
-                width / 2.0 - changeView.getNode().getWidth() / 2.0 + settings
-                        .getNode().getWidth() + 15);
+                width / 2.0 - changeView.getNode().getWidth() / 2.0
+                        + settings.getNode().getWidth() + 15
+        );
         changeView.getNode().setTranslateY(10);
 
-        nextRefresh.getNode().setTranslateX(width - nextRefresh.getNode().getWidth()
-                * 1.1); //i dont know why i need to multiply with 1.1, but else the text is out of scope
+        nextRefresh.getNode().setTranslateX(
+                width - nextRefresh.getNode().getWidth() * 1.1
+        ); //i dont know why i need to multiply with 1.1, but else the text is out of scope
         nextRefresh.getNode().setTranslateY(15);
 
         gameTime.getNode().setTranslateX(10);

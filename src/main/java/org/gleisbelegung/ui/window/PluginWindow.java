@@ -64,4 +64,8 @@ public class PluginWindow implements WindowInterface {
     @Override public void onClose() {
 
     }
+
+    public void onFatalError(String message){
+        controller.close();
+    }
 }

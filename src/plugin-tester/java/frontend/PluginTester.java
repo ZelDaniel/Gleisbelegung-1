@@ -1,7 +1,7 @@
 package frontend;
 
 import data.Facility;
-import org.gleisbelegung.io.StSSocket;
+import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.io.XmlSocket;
 import org.gleisbelegung.xml.XML;
 
@@ -38,7 +38,7 @@ public class PluginTester {
 
         try (final ServerSocket serverSocket = new ServerSocket()) {
             tester.setup(serverSocket);
-            InetSocketAddress localAddress = new InetSocketAddress("localhost", StSSocket.PORT);
+            InetSocketAddress localAddress = new InetSocketAddress("localhost", StsSocket.PORT);
             serverSocket.bind(localAddress);
             System.out.println("Accepting connections at " + serverSocket.getLocalSocketAddress().toString());
             while (!serverSocket.isClosed()) {

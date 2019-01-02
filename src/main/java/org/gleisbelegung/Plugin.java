@@ -8,7 +8,7 @@ import java.net.SocketException;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import org.gleisbelegung.io.StSSocket;
+import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.xml.XML;
 import org.gleisbelegung.ui.window.PluginWindow;
 
@@ -33,7 +33,7 @@ public class Plugin extends Application {
         // TODO pass socket address from pluginWindow
         Thread main = new Thread() {
 
-            private StSSocket stSSocket;
+            private StsSocket stSSocket;
 
             private void handleStatus(XML xml) throws IOException {
                 int status = Integer.parseInt(xml.get("code"));

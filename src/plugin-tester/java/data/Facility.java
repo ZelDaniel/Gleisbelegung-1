@@ -1,5 +1,7 @@
 package data;
 
+import org.gleisbelegung.xml.XML;
+
 public class Facility {
 
     private final String name;
@@ -14,5 +16,13 @@ public class Facility {
 
     public String getName() {
         return this.name;
+    }
+
+    public XML toXML()
+    {
+        return XML.generateEmptyXML("anlageninfo")
+                .set("name", name)
+                .set("simbuild", Integer.toString(simbuild))
+                .set("aid", Integer.toString(aid));
     }
 }

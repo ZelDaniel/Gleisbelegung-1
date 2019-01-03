@@ -55,4 +55,11 @@ public class Plugin extends Application {
     void connectionEstablished() {
         // TODO inform pluginWindow that the connection has been establised
     }
+
+    /**
+     * Informs the ui that the simtime, list of plattforms and the info of the facility are present
+     */
+    void initializationCompleted() {
+        // TODO
+    }
 }

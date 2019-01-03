@@ -1,6 +1,9 @@
 package org.gleisbelegung;
 
+import org.gleisbelegung.database.Database;
 import org.gleisbelegung.io.StsSocket;
+import org.gleisbelegung.sts.Facility;
+import org.gleisbelegung.sts.Plattform;
 import org.gleisbelegung.xml.XML;
 
 import java.io.IOException;
@@ -14,6 +17,10 @@ class XmlInputHandlerThread extends Thread {
 
     private final Plugin plugin;
     private StsSocket stSSocket;
+
+    private boolean facilityPresent = false;
+    private boolean simtimePresent = false;
+    private boolean plattformsPresent = false;
 
     enum ExitReason {
         SOCKET_CLOSED, ERROR
@@ -44,11 +51,32 @@ class XmlInputHandlerThread extends Thread {
                 // TODO handshake done
                 plugin.connectionEstablished();
                 stSSocket.write(XML.generateEmptyXML("anlageninfo"));
-                stSSocket.write(XML.generateEmptyXML("simzeit"));
+                stSSocket.write(XML.generateEmptyXML("simzeit").set("sender", Long.toString(System.currentTimeMillis())));
                 stSSocket.write(XML.generateEmptyXML("bahnsteigliste"));
                 stSSocket.write(XML.generateEmptyXML("zugliste"));
                 break;
         }
+    }
+
+    private void handleSimtime(long now, XML xml) {
+        long rtt = (now - Long.parseLong(xml.get("sender"))) / 2;
+        long realtime = Long.parseLong(xml.get("sender")) + rtt;
+        System.err.println("rtt: " + rtt);
+        // TODO log rtt as indicator for latency?
+        Database.getInstance().setSimTime(realtime, Long.parseLong(xml.get("zeit")));
+        this.simtimePresent = true;
+    }
+
+    private void handleFacility(XML xml) {
+        Database.getInstance().setFacility(Facility.parse(xml));
+        this.facilityPresent = true;
+    }
+
+    private void handlePlattformList(XML xml) {
+        for(XML xmlEntry : xml.getInternXML()) {
+            Database.getInstance().registerPlattform(Plattform.parse(xmlEntry));
+        }
+        this.plattformsPresent = true;
     }
 
     private boolean tryConnect(Socket socket) throws IOException {
@@ -64,16 +92,33 @@ class XmlInputHandlerThread extends Thread {
 
     private ExitReason handleInput(Socket socket) {
         stSSocket = new StsSocket(socket);
+        boolean complete = false;
 
         while(!socket.isClosed()) {
             try {
                 final XML readXml = stSSocket.read();
                 if (readXml == null) {
                     socket.close();
+                    continue;
                 }
                 switch (readXml.getKey()) {
                     case "status":
                         handleStatus(readXml);
+                        break;
+                    case "simzeit":
+                        long now = System.currentTimeMillis();
+                        handleSimtime(now, readXml);
+                        break;
+                    case "anlageninfo":
+                        handleFacility(readXml);
+                        break;
+                    case "bahnsteigliste":
+                        handlePlattformList(readXml);
+                        break;
+                }
+                if (!complete && plattformsPresent && simtimePresent && facilityPresent) {
+                    complete = true;
+                    plugin.initializationCompleted();
                 }
             } catch (Exception e) {
                 if (socket.isClosed()) {

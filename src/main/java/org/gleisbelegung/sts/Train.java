@@ -226,7 +226,7 @@ public class Train implements Comparable<Train> {
 	public void processF(final Details details) {
 		this.details.source = details.source;
 		this.details.atPlattform = true;
-		if (details.plattform.getPlan() == this.schedule.getFirstEntry().getPlattform().getPlan()) {
+		if (details.plattformPlanned == this.schedule.getFirstEntry().getPlattformPlanned()) {
 			this.details.setVisible();
 		}
 	}

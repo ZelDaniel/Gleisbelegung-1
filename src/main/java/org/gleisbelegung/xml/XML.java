@@ -362,6 +362,18 @@ public class XML {
 		return new ArrayList<>(this.subXML);
 	}
 
+	public XML addInternXML(XML intern) {
+		if (this.subXML == null) {
+			List<XML> subXML = new ArrayList<>();
+			subXML.add(intern);
+
+			return new XML(this.key, this.data, this.keyValuePairs, subXML);
+		}
+        this.subXML.add(intern);
+
+		return this;
+	}
+
 	/**
 	 * @return the tag of this XML
 	 */

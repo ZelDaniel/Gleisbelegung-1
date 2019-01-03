@@ -140,8 +140,8 @@ public class ScheduleFlags {
 						for (final Iterator<ScheduleEntry> iter =
 								kSchedule.iterator(); iter.hasNext();) {
 							final ScheduleEntry kse = iter.next();
-							if (kse.getPlattform().getPlan()
-									.equals(plattform.getPlan())) {
+							if (kse.getPlattformPlanned()
+									.equals(plattform)) {
 								final int kDep = kse.getDepature();
 								if (kDep < arr) {
 									break;

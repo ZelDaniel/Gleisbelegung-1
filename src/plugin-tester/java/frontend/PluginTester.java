@@ -1,6 +1,8 @@
 package frontend;
 
+import data.Clock;
 import data.Facility;
+import data.Plattform;
 import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.io.XmlSocket;
 import org.gleisbelegung.xml.XML;
@@ -11,11 +13,16 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
 import java.nio.charset.Charset;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.LinkedList;
 
 public class PluginTester {
 
     private final Flag flag;
     private final Console console = new Console();
+    private final List<Plattform> plattformList = new LinkedList<>();
 
     private Facility facility;
 
@@ -28,6 +35,17 @@ public class PluginTester {
     private void setup(ServerSocket socket) {
         this.facility = new Facility(flag.getFacilityName(), flag.getSimbuild(), flag.getAid());
         this.console.setServerSocket(socket);
+        Set<Plattform> hbfList = new HashSet<>();
+        for (int i = 0; i < 10; ++i) {
+            Plattform p = new Plattform(Integer.toString(i + 1));
+            hbfList.add(p);
+            plattformList.add(p);
+        }
+        for (Plattform p : hbfList) {
+            p.neighbours.addAll(hbfList);
+            p.neighbours.remove(p);
+        }
+
         this.console.start();
     }
 
@@ -45,6 +63,8 @@ public class PluginTester {
                 try (final Socket socket = serverSocket.accept()) {
                     tester.console.setSocket(socket);
                     System.out.println("Connected with " + socket.getRemoteSocketAddress());
+
+                    final Clock clock = new Clock();
                     final XmlSocket xmlSocket = new XmlSocket(socket);
                     final Thread inputHandler = new Thread() {
 
@@ -65,9 +85,20 @@ public class PluginTester {
                                         case "register":
                                             xmlSocket.write(
                                                     XML.generateEmptyXML("status")
-                                                    .set("code", "220")
-                                                    .setData("Ok.")
+                                                            .set("code", "220")
+                                                            .setData("Ok.")
                                             );
+                                            break;
+                                        case "simzeit":
+                                            xmlSocket.write(clock.getTime(xml));
+                                            break;
+                                        case "anlageninfo":
+                                            xmlSocket.write(tester.facility.toXML());
+                                            break;
+                                        case "bahnsteigliste":
+                                            xmlSocket.write(Plattform.toXML(tester.plattformList));
+                                            break;
+
                                     }
                                 } catch (Exception e) {
                                     return;

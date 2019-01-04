@@ -1,0 +1,2 @@
+This package contains all classes responsible for the ui.
+The lib package contains all classes and interfaces used in all other classes of this package.

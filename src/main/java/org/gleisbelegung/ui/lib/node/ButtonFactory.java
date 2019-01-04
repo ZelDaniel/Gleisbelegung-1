@@ -1,8 +1,8 @@
-package org.gleisbelegung.ui.node;
+package org.gleisbelegung.ui.lib.node;
 
 import javafx.scene.control.Button;
 import javafx.scene.text.Font;
-import org.gleisbelegung.ui.style.NodeWrapper;
+import org.gleisbelegung.ui.lib.style.NodeWrapper;
 
 
 public class ButtonFactory {

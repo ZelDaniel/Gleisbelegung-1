@@ -1,4 +1,4 @@
-package org.gleisbelegung.ui.style;
+package org.gleisbelegung.ui.lib.style;
 
 import javafx.scene.Node;
 

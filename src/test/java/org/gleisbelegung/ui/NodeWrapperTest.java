@@ -1,9 +1,9 @@
 package org.gleisbelegung.ui;
 
 import javafx.scene.layout.Pane;
-import org.gleisbelegung.ui.style.NodeWrapper;
-import org.gleisbelegung.ui.style.color.BackgroundColor;
-import org.gleisbelegung.ui.style.color.TextColor;
+import org.gleisbelegung.ui.lib.style.NodeWrapper;
+import org.gleisbelegung.ui.lib.style.color.BackgroundColor;
+import org.gleisbelegung.ui.lib.style.color.TextColor;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

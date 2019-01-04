@@ -1,13 +1,13 @@
-package org.gleisbelegung.ui.panel.plugin;
+package org.gleisbelegung.ui.main;
 
 import javafx.scene.layout.Pane;
-import org.gleisbelegung.ui.panel.PanelInterface;
-import org.gleisbelegung.ui.style.NodeWrapper;
-import org.gleisbelegung.ui.style.color.BackgroundColor;
+import org.gleisbelegung.ui.lib.panel.PanelInterface;
+import org.gleisbelegung.ui.lib.style.NodeWrapper;
+import org.gleisbelegung.ui.lib.style.color.BackgroundColor;
 
 
 /**
- * Represents the Panel at the right of the {@link org.gleisbelegung.ui.window.PluginWindow}
+ * Represents the Panel at the right of the {@link MainWindow}
  */
 public class TrainInformationPanel implements PanelInterface {
 

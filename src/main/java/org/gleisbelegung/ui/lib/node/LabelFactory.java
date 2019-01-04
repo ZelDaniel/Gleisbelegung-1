@@ -1,9 +1,9 @@
-package org.gleisbelegung.ui.node;
+package org.gleisbelegung.ui.lib.node;
 
 import javafx.scene.control.Label;
 import javafx.scene.text.Font;
-import org.gleisbelegung.ui.style.NodeWrapper;
-import org.gleisbelegung.ui.style.color.TextColor;
+import org.gleisbelegung.ui.lib.style.NodeWrapper;
+import org.gleisbelegung.ui.lib.style.color.TextColor;
 
 
 public class LabelFactory {

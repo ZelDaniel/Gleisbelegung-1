@@ -1,16 +1,16 @@
-package org.gleisbelegung.ui.panel.plugin;
+package org.gleisbelegung.ui.main;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
-import org.gleisbelegung.ui.node.ButtonFactory;
-import org.gleisbelegung.ui.node.LabelFactory;
-import org.gleisbelegung.ui.panel.PanelInterface;
-import org.gleisbelegung.ui.style.NodeWrapper;
+import org.gleisbelegung.ui.lib.node.ButtonFactory;
+import org.gleisbelegung.ui.lib.node.LabelFactory;
+import org.gleisbelegung.ui.lib.panel.PanelInterface;
+import org.gleisbelegung.ui.lib.style.NodeWrapper;
 
 
 /**
- * Represents the Panel at the top of the {@link org.gleisbelegung.ui.window.PluginWindow}
+ * Represents the Panel at the top of the {@link MainWindow}
  */
 public class InformationPanel implements PanelInterface {
 

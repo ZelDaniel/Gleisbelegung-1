@@ -81,10 +81,11 @@ public class WindowController {
         });
 
         stage.maximizedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal)
+            if (newVal){
                 window.onMaximize();
-            else
+            } else {
                 window.onMinimize();
+            }
         });
 
         stage.setOnCloseRequest((e) -> {

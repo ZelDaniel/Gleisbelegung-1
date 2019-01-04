@@ -20,8 +20,9 @@ public class ButtonFactory {
         Button b = new Button(text);
         b.setFont(Font.font(fontSize));
 
-        if (onClick != null)
+        if (onClick != null) {
             b.setOnAction((e) -> onClick.run());
+        }
 
         return new NodeWrapper<>(b);
     }

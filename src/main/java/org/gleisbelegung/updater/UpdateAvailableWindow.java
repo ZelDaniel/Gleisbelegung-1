@@ -6,21 +6,22 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.gleisbelegung.Plugin;
-import org.gleisbelegung.ui.node.ButtonFactory;
-import org.gleisbelegung.ui.node.LabelFactory;
-import org.gleisbelegung.ui.style.Style;
-import org.gleisbelegung.ui.window.WindowController;
-import org.gleisbelegung.ui.window.WindowInterface;
+import org.gleisbelegung.ui.lib.node.ButtonFactory;
+import org.gleisbelegung.ui.lib.node.LabelFactory;
+import org.gleisbelegung.ui.lib.style.NodeWrapper;
+import org.gleisbelegung.ui.lib.style.color.BackgroundColor;
+import org.gleisbelegung.ui.lib.window.WindowController;
+import org.gleisbelegung.ui.lib.window.WindowInterface;
 
 
 public class UpdateAvailableWindow implements WindowInterface {
 
     WindowController controller;
 
-    Label text;
-    Label version;
-    Button cancel;
-    Button doUpdate;
+    NodeWrapper<Label> text;
+    NodeWrapper<Label> version;
+    NodeWrapper<Button> cancel;
+    NodeWrapper<Button> doUpdate;
 
     String currentVersion;
     String newVersion;
@@ -40,22 +41,22 @@ public class UpdateAvailableWindow implements WindowInterface {
         text = LabelFactory
                 .create("Hi, ich bin Dein Updater. Die Ersteller des Plugins haben mir zukommen lassen, dass es eine neue Version gibt:",
                         16);
-        text.setWrapText(true);
-        text.setTranslateX(20);
-        text.setTranslateY(20);
+        text.getNode().setWrapText(true);
+        text.getNode().setTranslateX(20);
+        text.getNode().setTranslateY(20);
 
         version = LabelFactory.create("Deine Version: " + currentVersion
                 + "\nNeuste Version: " + newVersion, 16);
-        version.setTranslateX(320);
-        version.setTranslateY(100);
+        version.getNode().setTranslateX(320);
+        version.getNode().setTranslateY(100);
 
         Runnable onCancelClick = () -> {
             controller.close();
             Plugin.startPlugin(new Stage());
         };
         cancel = ButtonFactory.create("Abbrechen", 16, onCancelClick);
-        cancel.setTranslateX(200);
-        cancel.setTranslateY(200);
+        cancel.getNode().setTranslateX(200);
+        cancel.getNode().setTranslateY(200);
 
         Runnable onUpdateClick = () -> {
             controller.close();
@@ -63,17 +64,17 @@ public class UpdateAvailableWindow implements WindowInterface {
             updater.startUpdater();
         };
         doUpdate = ButtonFactory.create("Mach mal", 16, onUpdateClick);
-        doUpdate.setTranslateX(500);
-        doUpdate.setTranslateY(200);
+        doUpdate.getNode().setTranslateX(500);
+        doUpdate.getNode().setTranslateY(200);
 
-        Pane pane = new Pane(text, version, cancel, doUpdate);
-        Style.applyClass(pane, "dark_gray");
+        NodeWrapper<Pane> pane = new NodeWrapper<>(new Pane(text.getNode(), version.getNode(), cancel.getNode(), doUpdate.getNode()));
+        pane.addStyle(new BackgroundColor("#303030"));
 
-        return new Scene(pane);
+        return new Scene(pane.getNode());
     }
 
     @Override public void onResize(double width, double height) {
-        text.setMaxWidth(width - 40);
+        text.getNode().setMaxWidth(width - 40);
     }
 
     @Override public void onMaximize() {

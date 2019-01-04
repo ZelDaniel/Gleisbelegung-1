@@ -9,6 +9,7 @@
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'jacoco' // java coverage report
 //apply plugin: 'javafx-gradle-plugin'
 
 sourceCompatibility = 1.8
@@ -86,4 +87,37 @@ repositories {
 // In this section you declare the dependencies for your production and test code
 dependencies {
     testCompile 'junit:junit:4.12'
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            includes = [
+              //'org.gleisbelegung.collection.*',
+              //'org.gleisbelegung.sts.*',
+              'org.gleisbelegung.utils.*'
+            ]
+            limit {
+                minimum = 0.9
+            }
+        }
+        rule {
+            element = 'CLASS'
+            enabled = false
+            includes = ['org.gleisbelegung.ui']
+            limit {
+                counter = 'LINE'
+                minimum = 0.3
+            }
+        }
+        rule {
+            element = 'CLASS'
+            enabled = false
+            includes = ['org.gleisbelegung.*']
+            limit {
+                minimum = 0.4
+            }
+        }
+    }
 }

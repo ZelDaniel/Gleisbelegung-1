@@ -1,6 +1,6 @@
-package org.gleisbelegung.ui.style.color;
+package org.gleisbelegung.ui.lib.style.color;
 
-import org.gleisbelegung.ui.style.StyleInterface;
+import org.gleisbelegung.ui.lib.style.StyleInterface;
 
 public class BackgroundColor implements StyleInterface {
   String color;

@@ -1,6 +1,7 @@
-package org.gleisbelegung.ui.window;
+package org.gleisbelegung.ui.lib.window;
 
 import javafx.scene.Scene;
+import org.gleisbelegung.ui.lib.panel.PanelInterface;
 
 
 /**
@@ -9,8 +10,8 @@ import javafx.scene.Scene;
 public interface WindowInterface {
 
     /**
-     * called after the {@link org.gleisbelegung.ui.window.WindowController#init(String, double, double) WindowController.init(args)}. <br>
-     * should create and initialize all elements of the Window including all {@link org.gleisbelegung.ui.panel.PanelInterface Panels}
+     * called after the {@link WindowController#init(String, double, double) WindowController.init(args)}. <br>
+     * should create and initialize all elements of the Window including all {@link PanelInterface Panels}
      *
      * @return styled {@link javafx.scene.Scene Scene} in order to create the {@link javafx.stage.Stage Stage}
      */

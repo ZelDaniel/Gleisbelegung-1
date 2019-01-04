@@ -1,4 +1,4 @@
-package org.gleisbelegung.ui.panel;
+package org.gleisbelegung.ui.lib.panel;
 
 import javafx.scene.layout.Pane;
 

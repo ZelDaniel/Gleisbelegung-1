@@ -1,11 +1,11 @@
-package org.gleisbelegung.ui.window;
+package org.gleisbelegung.ui.lib.window;
 
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.gleisbelegung.ui.panel.PanelController;
-import org.gleisbelegung.ui.panel.PanelInterface;
+import org.gleisbelegung.ui.lib.panel.PanelController;
+import org.gleisbelegung.ui.lib.panel.PanelInterface;
 
 
 public class WindowController {
@@ -22,7 +22,7 @@ public class WindowController {
     }
 
     /**
-     * Adds a {@link org.gleisbelegung.ui.panel.PanelInterface Panel} to a Window
+     * Adds a {@link PanelInterface Panel} to a Window
      *
      * @param panel
      * @return initialized and styled {@link javafx.scene.layout.Pane Pane}

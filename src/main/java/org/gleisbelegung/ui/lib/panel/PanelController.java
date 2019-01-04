@@ -1,8 +1,10 @@
-package org.gleisbelegung.ui.panel;
+package org.gleisbelegung.ui.lib.panel;
 
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import org.gleisbelegung.ui.lib.window.WindowController;
+import org.gleisbelegung.ui.lib.window.WindowInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +12,7 @@ import java.util.function.Consumer;
 
 
 /**
- * is part of the {@link org.gleisbelegung.ui.window.WindowController WindowController} and mainly stores and adapts the {@link org.gleisbelegung.ui.panel.PanelInterface Panel}
+ * is part of the {@link WindowController WindowController} and mainly stores and adapts the {@link PanelInterface Panel}
  */
 public class PanelController {
 
@@ -43,10 +45,10 @@ public class PanelController {
     }
 
     /**
-     * called by {@link org.gleisbelegung.ui.window.WindowController WindowController} after a resize of {@link org.gleisbelegung.ui.window.WindowInterface Window}
+     * called by {@link WindowController WindowController} after a resize of {@link WindowInterface Window}
      *
-     * @param width  width of the {@link org.gleisbelegung.ui.window.WindowInterface Window}
-     * @param height height of the {@link org.gleisbelegung.ui.window.WindowInterface Window}
+     * @param width  width of the {@link WindowInterface Window}
+     * @param height height of the {@link WindowInterface Window}
      */
     public void onResize(double width, double height) {
         Consumer<PanelInterface> consumer =

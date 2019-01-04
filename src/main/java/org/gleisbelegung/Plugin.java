@@ -2,7 +2,7 @@ package org.gleisbelegung;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import org.gleisbelegung.ui.window.PluginWindow;
+import org.gleisbelegung.ui.main.MainWindow;
 import org.gleisbelegung.updater.DownloadUpdateWindow;
 import org.gleisbelegung.updater.UpdateAvailableWindow;
 import org.gleisbelegung.updater.Updater;
@@ -32,6 +32,6 @@ public class Plugin extends Application {
     }
 
     public static void startPlugin(Stage stage) {
-        PluginWindow pluginWindow = new PluginWindow(stage);
+        MainWindow mainWindow = new MainWindow(stage);
     }
 }

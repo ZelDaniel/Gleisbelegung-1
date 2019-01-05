@@ -4,14 +4,17 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.ui.window.PluginWindow;
+
+import java.util.concurrent.TimeUnit;
 
 
 public class Plugin extends Application {
 
     public static final String PLUGIN_NAME = "Gleisbelegung";
     public static final String PLUGIN_TEXT = "";
-    public static final String VERSION = "0.0.1-alpha";
+    public static final String VERSION = "2.0.0-dev-0";
     public static final String AUTHOR = "manuel";
     public static final int PLUGIN_PROTOCOL = 1;
 
@@ -21,6 +24,16 @@ public class Plugin extends Application {
     public static final int CONNECT_TIMEOUT = 500;
 
     private PluginWindow pluginWindow = null;
+
+    /**
+     * Update interval of train list in milliseconds
+     */
+    private long trainListUpdateInterval = TimeUnit.MINUTES.toMillis(2);
+
+    /**
+     * Update interval of schedule in milliseconds
+     */
+    private long scheduleUpdateInterval = TimeUnit.SECONDS.toMillis(30);
 
     @Override
     public void start(Stage primaryStage) {
@@ -50,9 +63,15 @@ public class Plugin extends Application {
     }
 
     /**
-     * Informs the ui that a connection has been established successfully
+     * Informs the plugin that a connection has been established successfully.
+     *
+     * The regular update of the train list and schedules will be initiated.
      */
-    void connectionEstablished() {
+    void connectionEstablished(StsSocket socket) {
+        UpdateThread.createSimtimeUpdateTask(socket, this).start();
+        UpdateThread.createTrainListUpdateTask(socket, this).start();
+        UpdateThread.createScheduleUpdateTask(socket, this).start();
+
         // TODO inform pluginWindow that the connection has been establised
     }
 
@@ -61,5 +80,19 @@ public class Plugin extends Application {
      */
     void initializationCompleted() {
         // TODO
+    }
+
+    /**
+     * @return Update interval in milliseconds
+     */
+    long getTrainListUpdateInterval() {
+        return trainListUpdateInterval;
+    }
+
+    /**
+     * @return Update interval in milliseconds
+     */
+    long getScheduleUpdateInterval() {
+        return scheduleUpdateInterval;
     }
 }

@@ -24,4 +24,8 @@ public class XmlSocket {
          socket.getOutputStream().write(10);
          socket.getOutputStream().flush();
     }
+
+    public boolean isClosed() {
+        return socket.isClosed();
+    }
 }

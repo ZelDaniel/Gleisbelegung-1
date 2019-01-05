@@ -3,6 +3,7 @@ package frontend;
 import data.Clock;
 import data.Facility;
 import data.Plattform;
+import data.Train;
 import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.io.XmlSocket;
 import org.gleisbelegung.xml.XML;
@@ -13,21 +14,28 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
+
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class PluginTester {
 
     private final Flag flag;
-    private final Console console = new Console();
+    private final Console console;
     private final List<Plattform> plattformList = new LinkedList<>();
+    final Map<Integer, Train> trains = new HashMap<>();
 
     private Facility facility;
 
     private PluginTester(final Flag flag) {
         this.flag = flag;
+        this.console = new Console(this);
         this.console.setDaemon(true);
         this.console.setName("InputConsole");
     }
@@ -35,15 +43,71 @@ public class PluginTester {
     private void setup(ServerSocket socket) {
         this.facility = new Facility(flag.getFacilityName(), flag.getSimbuild(), flag.getAid());
         this.console.setServerSocket(socket);
-        Set<Plattform> hbfList = new HashSet<>();
-        for (int i = 0; i < 10; ++i) {
+
+        // stetup plattforms
+        Set<Plattform>[] hbfList = new Set[]{ new HashSet<>(), new HashSet<>(), new HashSet() };
+         for (int i = 0; i < 4; ++i) {
+            for (int part = 0; part < 2; ++part) {
+                Plattform p = new Plattform(Integer.toString(i + 1) + (char) ('A' + part));
+                hbfList[0].add(p);
+                plattformList.add(p);
+            }
+        }
+        for (int i = 4; i < 10; ++i) {
+            for (int part = 0; part < 4; ++part) {
+                Plattform p = new Plattform(Integer.toString(i + 1) + (char) ('A' + part));
+                hbfList[1].add(p);
+                plattformList.add(p);
+            }
+        }
+        for (int i = 10; i < 14; ++i) {
             Plattform p = new Plattform(Integer.toString(i + 1));
-            hbfList.add(p);
+            hbfList[2].add(p);
             plattformList.add(p);
         }
-        for (Plattform p : hbfList) {
-            p.neighbours.addAll(hbfList);
-            p.neighbours.remove(p);
+        plattformList.add(new Plattform("stop"));
+        for (Set<Plattform> plattforms : hbfList){
+            plattforms.forEach(new Consumer<Plattform>() {
+
+                @Override
+                public void accept(Plattform plattform) {
+                    plattform.neighbours.addAll(plattforms);
+                    plattform.neighbours.remove(plattform);
+                }
+            });
+        }
+
+        for (int i = 0; i < 50; ++i) {
+            trains.put(i, new Train(i < 10 ? "S1" : (i < 15 ? "IRE" : ("RB")) + i));
+        }
+        for (int i = 1; i < 10; i += 2) {
+            trains.get(i).verspaetung = "+2";
+        }
+        for (int i = 0; i < 50; ++i) {
+            Train t = trains.get(i);
+            t.verspaetung = i % 5 == 0 ? "-1" : "+3";
+            if (i < 10) {
+                String h = t.nach;
+                t.nach = t.von;
+                t.von = h;
+            } else if (i < 15) {
+                if (i % 2 == 0) {
+                    t.nach = "C-Teststätt";
+                    t.plangleis = t.gleis = "7A";
+                } else {
+                    t.plangleis = t.gleis = "6B";
+                    t.von = "C-Teststätt";
+                }
+            } else {
+                int delay = 3 * (i - 16);
+                t.verspaetung = String.format("%+d", delay);
+                t.plangleis = "11";
+                if (i % 6 == 0) {
+                    t.gleis = "12";
+                } else {
+                    t.gleis = t.plangleis;
+                }
+            }
         }
 
         this.console.start();
@@ -74,32 +138,60 @@ public class PluginTester {
                                 try {
                                     final XML xml = xmlSocket.read();
                                     if (xml == null) {
-                                        System.err.println("> NULL\nClosing socket " + socket + "\n");
+                                        System.err.println("IN  (" + clock.getTimeString() + "):  NULL\nClosing socket " + socket + "\n");
                                         socket.close();
                                         return;
                                     }
                                     if (tester.flag.isEchoInput()) {
-                                        System.out.println("> " + xml);
+                                        System.out.println("IN  (" + clock.getTimeString() + "):  " + xml);
                                     }
+                                    XML response;
+                                    final Train t;
                                     switch (xml.getKey()) {
                                         case "register":
-                                            xmlSocket.write(
-                                                    XML.generateEmptyXML("status")
+                                            response = XML.generateEmptyXML("status")
                                                             .set("code", "220")
-                                                            .setData("Ok.")
-                                            );
+                                                            .setData("Ok.");
                                             break;
                                         case "simzeit":
-                                            xmlSocket.write(clock.getTime(xml));
+                                            response = clock.getTime(xml);
                                             break;
                                         case "anlageninfo":
-                                            xmlSocket.write(tester.facility.toXML());
+                                            response = tester.facility.toXML();
                                             break;
                                         case "bahnsteigliste":
-                                            xmlSocket.write(Plattform.toXML(tester.plattformList));
+                                            response = Plattform.toXML(tester.plattformList);
                                             break;
+                                        case "zugliste":
+                                            response = Train.toXML(tester.trains.entrySet());
+                                            break;
+                                        case "zugdetails":
+                                            t = tester.trains.get(Integer.valueOf(xml.get("zid")));
+                                            if (t == null) {
+                                                response = XML.generateEmptyXML("status")
+                                                        .set("code", "402")
+                                                        .set("zid", xml.get("zid"))
+                                                        .setData("ZID unbekannt");
+                                            } else {
+                                                response = t.toXml(Integer.valueOf(xml.get("zid")));
+                                            }
+                                            break;
+                                        case "zugfahrplan":
+                                            t = tester.trains.get(Integer.valueOf(xml.get("zid")));
+                                            if (t == null) {
+                                                response = XML.generateEmptyXML("status")
+                                                        .set("code", "402")
+                                                        .set("zid", xml.get("zid"))
+                                                        .setData(String.format("ZID %s unbekannt", xml.get("zid")));
+                                            } else {
+                                                response = t.scheduleToXml(Integer.valueOf(xml.get("zid")));
+                                            }
+                                            break;
+                                        default:
+                                            continue;
 
                                     }
+                                    while (!tester.console.queue.offer(response));
                                 } catch (Exception e) {
                                     return;
                                 }
@@ -121,8 +213,11 @@ public class PluginTester {
                                 out.flush();
                                 while (!socket.isClosed()) {
                                     try {
-                                        // TODO pass input injected by running console
-                                        sleep(2000);
+                                        XML xmlToSend = tester.console.queue.poll(1, TimeUnit.MINUTES);
+                                        if (xmlToSend != null) {
+                                            System.out.println("OUT (" + clock.getTimeString() + "):  " + xmlToSend);
+                                            xmlSocket.write(xmlToSend);
+                                        }
                                     } catch (Exception e) {
                                         return;
                                     }

@@ -1,5 +1,6 @@
 package org.gleisbelegung.sts;
 
+import org.gleisbelegung.database.StSDataInterface;
 import org.gleisbelegung.xml.XML;
 
 /**
@@ -36,10 +37,6 @@ public class Train implements Comparable<Train> {
 
 	}
 
-	static Train createByIdOnly(final Integer id) {
-		return new Train(id, id.toString());
-	}
-
 	static Train createFromXML(final XML xml) {
 		final Integer id = Integer.valueOf(xml.get("zid"));
 		final String name = xml.get("name");
@@ -63,7 +60,7 @@ public class Train implements Comparable<Train> {
 		return cmp;
 	}
 
-	public String getDelay() {
+	public String formatDelay() {
 		return String.format(
 				"%s %3d", this.details.delay <= 0
 						? this.details.delay == 0 ? " " : "-" : "+",
@@ -197,9 +194,9 @@ public class Train implements Comparable<Train> {
 	 *
 	 * @param stsHandler
 	 */
-	void removedFromList(StSHandlerInterface stsHandler)
+	void removedFromList(StSDataInterface stsHandler)
 	{
-
+		// TODO notify observers once implemented
 	}
 
 	private void updateRemovedPredecessor(final Train removedTrain) {

@@ -4,6 +4,8 @@ import org.gleisbelegung.database.Database;
 import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.sts.Facility;
 import org.gleisbelegung.sts.Plattform;
+import org.gleisbelegung.sts.Train;
+import org.gleisbelegung.sts.Trainlist;
 import org.gleisbelegung.xml.XML;
 
 import java.io.IOException;
@@ -48,12 +50,10 @@ class XmlInputHandlerThread extends Thread {
                 // TODO XML is not correct
                 break;
             case 220:
-                // TODO handshake done
-                plugin.connectionEstablished();
-                stSSocket.write(XML.generateEmptyXML("anlageninfo"));
-                stSSocket.write(XML.generateEmptyXML("simzeit").set("sender", Long.toString(System.currentTimeMillis())));
-                stSSocket.write(XML.generateEmptyXML("bahnsteigliste"));
-                stSSocket.write(XML.generateEmptyXML("zugliste"));
+                // handshake completed
+                plugin.connectionEstablished(stSSocket);
+                stSSocket.requestFacilityInfo();
+                stSSocket.requestPlattformList();
                 break;
         }
     }
@@ -77,6 +77,18 @@ class XmlInputHandlerThread extends Thread {
             Database.getInstance().registerPlattform(Plattform.parse(xmlEntry));
         }
         this.plattformsPresent = true;
+    }
+
+    private void handleTrainList(XML xml) throws IOException {
+        Trainlist trains = Trainlist.parse(Database.getInstance(), xml);
+        for (Train train : trains) {
+            if (train.getDetails() == null) {
+                stSSocket.requestDetails(train);
+            }
+            if (train.getSchedule() == null) {
+                stSSocket.requestSchedule(train);
+            }
+        }
     }
 
     private boolean tryConnect(Socket socket) throws IOException {
@@ -114,6 +126,15 @@ class XmlInputHandlerThread extends Thread {
                         break;
                     case "bahnsteigliste":
                         handlePlattformList(readXml);
+                        break;
+                    case "zugdetails":
+                        // TODO
+                        break;
+                    case "zugfahrplan":
+                        // TODO
+                        break;
+                    case "zugliste":
+                        handleTrainList(readXml);
                         break;
                 }
                 if (!complete && plattformsPresent && simtimePresent && facilityPresent) {

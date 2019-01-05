@@ -3,12 +3,13 @@ package org.gleisbelegung.database;
 import org.gleisbelegung.annotations.Threadsafe;
 import org.gleisbelegung.sts.Facility;
 import org.gleisbelegung.sts.Plattform;
+import org.gleisbelegung.sts.Trainlist;
 
 import java.util.List;
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
-public class Database {
+public class Database implements StSDataInterface {
 
     private static Database instance;
 
@@ -30,6 +31,7 @@ public class Database {
     private int simTime;
     private long realTime;
     private Facility facility = null;
+    private Trainlist trainList;
     private List<Plattform> plattformList = new LinkedList<>();
 
     private Database() {
@@ -71,5 +73,27 @@ public class Database {
 
     public void setFacility(Facility facility) {
         this.facility = facility;
+    }
+
+    /**
+     * This method may be called from Trainlist only.
+     *
+     * @param trainList
+     */
+    @Override
+    @Threadsafe
+    public void setTrainList(Trainlist trainList) {
+        this.trainList = trainList;
+    }
+
+    @Threadsafe
+    @Override
+    public Trainlist getTrainList() {
+        if (trainList != null) {
+            return trainList;
+        }
+        synchronized (Trainlist.class) {
+            return trainList;
+        }
     }
 }

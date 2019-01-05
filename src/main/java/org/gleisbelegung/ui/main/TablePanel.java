@@ -1,6 +1,7 @@
 package org.gleisbelegung.ui.main;
 
 import javafx.scene.layout.Pane;
+import org.gleisbelegung.ui.lib.panel.Panel;
 import org.gleisbelegung.ui.lib.panel.PanelInterface;
 import org.gleisbelegung.ui.lib.style.NodeWrapper;
 import org.gleisbelegung.ui.lib.style.color.BackgroundColor;
@@ -9,7 +10,7 @@ import org.gleisbelegung.ui.lib.style.color.BackgroundColor;
 /**
  * Represents the Panel at the center of the {@link MainWindow}
  */
-public class TablePanel implements PanelInterface {
+public class TablePanel extends Panel {
 
     NodeWrapper<Pane> pane;
 

@@ -3,6 +3,7 @@ package org.gleisbelegung.ui.lib.style;
 import javafx.scene.Node;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 
@@ -51,12 +52,7 @@ public class NodeWrapper<T extends Node> {
     }
 
     private void removeIfExisting(StyleInterface newStyle) {
-        Set<StyleInterface> stylesTemp = new HashSet<>(styles);
-        for (StyleInterface style : stylesTemp) {
-            if (style.getClass() == newStyle.getClass()) {
-                styles.remove(style);
-            }
-        }
+        styles.removeIf(style -> style.getClass() == newStyle.getClass());
     }
 
     public T getNode() {

@@ -1,12 +1,18 @@
 package org.gleisbelegung.ui.main;
 
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import org.gleisbelegung.database.Database;
+import org.gleisbelegung.sts.Plattform;
 import org.gleisbelegung.ui.lib.node.ButtonFactory;
 import org.gleisbelegung.ui.lib.node.LabelFactory;
 import org.gleisbelegung.ui.lib.panel.PanelInterface;
 import org.gleisbelegung.ui.lib.style.NodeWrapper;
+
+import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -32,6 +38,21 @@ public class InformationPanel implements PanelInterface {
         pane = new NodeWrapper<>(new Pane(restart.getNode(), settings.getNode(),
                 changeView.getNode(), nextRefresh.getNode(),
                 gameTime.getNode()));
+
+        Runnable r = () -> {
+            while (true){
+                updateGameTime();
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Thread t = new Thread(r);
+        t.setDaemon(true);
+        t.start();
 
         return pane.getNode();
     }
@@ -73,5 +94,16 @@ public class InformationPanel implements PanelInterface {
 
     @Override public void onVisible() {
 
+    }
+
+    private void updateGameTime(){
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+
+        Database db = Database.getInstance();
+
+        String time = format.format(TimeUnit.SECONDS.toMillis(db.getSimTime()));
+        Platform.runLater(() -> {
+            gameTime.getNode().setText("Simzeit: " + time);
+        });
     }
 }

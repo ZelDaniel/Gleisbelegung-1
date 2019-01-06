@@ -14,6 +14,7 @@ public class Train {
     public String nach = "B-Stadt";
     public Boolean sichtbar = Boolean.FALSE;
     public Boolean amgleis = Boolean.FALSE;
+    public Schedule schedule = new Schedule();
 
     public Train(String name) {
         this.name = name;
@@ -23,6 +24,9 @@ public class Train {
         XML xml = XML.generateEmptyXML("zugdetails");
         xml.set("zid", id.toString());
         for (Field field : Train.class.getDeclaredFields()) {
+            if (field.getName().equals("schedule")) {
+                continue;
+            }
             try {
                 xml.set(field.getName(), field.get(this).toString());
             } catch (IllegalAccessException e) {
@@ -33,10 +37,7 @@ public class Train {
     }
 
     public XML scheduleToXml(Integer id) {
-        XML xml = XML.generateEmptyXML("zugfahrplan");
-        xml.set("zid", id.toString());
-
-        return xml;
+        return schedule.toXML(id);
     }
 
     public static XML toXML(Iterable<Map.Entry<Integer, Train>> trains) {

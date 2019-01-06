@@ -1,4 +1,4 @@
-package org.gleisbelegung.updater;
+package org.gleisbelegung.ui.updater;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -11,6 +11,7 @@ import org.gleisbelegung.ui.lib.style.NodeWrapper;
 import org.gleisbelegung.ui.lib.style.color.BackgroundColor;
 import org.gleisbelegung.ui.lib.window.WindowController;
 import org.gleisbelegung.ui.lib.window.WindowInterface;
+import org.gleisbelegung.updater.Updater;
 
 
 public class DownloadUpdateWindow implements WindowInterface {

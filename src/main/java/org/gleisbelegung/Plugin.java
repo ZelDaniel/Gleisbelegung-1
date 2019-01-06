@@ -3,8 +3,8 @@ package org.gleisbelegung;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.gleisbelegung.ui.main.MainWindow;
-import org.gleisbelegung.updater.DownloadUpdateWindow;
-import org.gleisbelegung.updater.UpdateAvailableWindow;
+import org.gleisbelegung.ui.updater.DownloadUpdateWindow;
+import org.gleisbelegung.ui.updater.UpdateAvailableWindow;
 import org.gleisbelegung.updater.Updater;
 
 

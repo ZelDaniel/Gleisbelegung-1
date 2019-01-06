@@ -103,16 +103,17 @@ public class Train implements Comparable<Train> {
 	}
 
 	/**
-	 * Updates the postion in the schedule according to details
+	 * Updates the position in the schedule according to details
 	 *
 	 * @param details
 	 */
 	public void setPosition(final Details details) {
 		final Schedule schedule = this.schedule;
-		assert schedule != null;
 		this.details = details;
 
-		schedule.setPos(details);
+		if (schedule != null) {
+			schedule.setPos(details);
+		}
 	}
 
 	// E-/ K-flag

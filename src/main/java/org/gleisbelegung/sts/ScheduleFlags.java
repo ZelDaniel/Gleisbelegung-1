@@ -70,6 +70,9 @@ public class ScheduleFlags {
 	public ScheduleFlags(final String init, final Train train,
 			final Trainlist trains, final Set<Integer> missingIDs,
 			final Plattform plattform, int arr) {
+		if (init == null) {
+			return;
+		}
 		for (int i = 0; i < init.length(); ++i) {
 			switch (init.charAt(i)) {
 			case 'A':

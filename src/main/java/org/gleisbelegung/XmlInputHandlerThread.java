@@ -2,8 +2,10 @@ package org.gleisbelegung;
 
 import org.gleisbelegung.database.Database;
 import org.gleisbelegung.io.StsSocket;
+import org.gleisbelegung.sts.Details;
 import org.gleisbelegung.sts.Facility;
 import org.gleisbelegung.sts.Plattform;
+import org.gleisbelegung.sts.Schedule;
 import org.gleisbelegung.sts.Train;
 import org.gleisbelegung.sts.Trainlist;
 import org.gleisbelegung.xml.XML;
@@ -79,6 +81,26 @@ class XmlInputHandlerThread extends Thread {
         this.plattformsPresent = true;
     }
 
+    private void handleDetails(XML xml) {
+        Train t = getTrain(xml);
+        if (t != null) {
+            Details details = Details.parse(xml);
+            if (t.getDetails() == null) {
+                t.setPosition(details);
+                // TODO register event
+            } else {
+                t.updateByDetails(details);
+            }
+        }
+    }
+
+    private void handleSchedule(XML xml) {
+        Train t = getTrain(xml);
+        if (t != null) {
+            t.setSchedule(Schedule.parse(xml, t, Database.getInstance().getTrainList(), null));
+        }
+    }
+
     private void handleTrainList(XML xml) throws IOException {
         Trainlist trains = Trainlist.parse(Database.getInstance(), xml);
         for (Train train : trains) {
@@ -89,6 +111,10 @@ class XmlInputHandlerThread extends Thread {
                 stSSocket.requestSchedule(train);
             }
         }
+    }
+
+    private Train getTrain(XML xml) {
+        return Database.getInstance().getTrainList().get(xml.get("zid"));
     }
 
     private boolean tryConnect(Socket socket) throws IOException {
@@ -128,10 +154,10 @@ class XmlInputHandlerThread extends Thread {
                         handlePlattformList(readXml);
                         break;
                     case "zugdetails":
-                        // TODO
+                        handleDetails(readXml);
                         break;
                     case "zugfahrplan":
-                        // TODO
+                        handleSchedule(readXml);
                         break;
                     case "zugliste":
                         handleTrainList(readXml);

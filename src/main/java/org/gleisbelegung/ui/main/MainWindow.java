@@ -1,17 +1,20 @@
-package org.gleisbelegung.ui.window;
+package org.gleisbelegung.ui.main;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.gleisbelegung.ui.panel.plugin.InformationPanel;
-import org.gleisbelegung.ui.panel.plugin.StatusPanel;
-import org.gleisbelegung.ui.panel.plugin.TablePanel;
-import org.gleisbelegung.ui.panel.plugin.TrainInformationPanel;
-import org.gleisbelegung.ui.style.Style;
+import org.gleisbelegung.ui.lib.window.WindowController;
+import org.gleisbelegung.ui.lib.window.WindowInterface;
+import org.gleisbelegung.ui.main.InformationPanel;
+import org.gleisbelegung.ui.main.StatusPanel;
+import org.gleisbelegung.ui.main.TablePanel;
+import org.gleisbelegung.ui.main.TrainInformationPanel;
+import org.gleisbelegung.ui.lib.style.NodeWrapper;
+import org.gleisbelegung.ui.lib.style.color.BackgroundColor;
 
 
-public class PluginWindow implements WindowInterface {
+public class MainWindow implements WindowInterface {
 
     private WindowController controller;
 
@@ -20,14 +23,15 @@ public class PluginWindow implements WindowInterface {
     private TrainInformationPanel trainInformation;
     private StatusPanel status;
 
-    public PluginWindow(Stage stage) {
+    public MainWindow(Stage stage) {
         controller = new WindowController(this, stage);
         controller.init("Gleisbelegung", 1250, 700);
     }
 
     @Override public Scene init() {
         BorderPane bp = new BorderPane();
-        Style.applyClass(bp, "dark_gray");
+        NodeWrapper nodeWrapper = new NodeWrapper(bp);
+        nodeWrapper.addStyle(new BackgroundColor("#303030"));
 
         informations = new InformationPanel();
         Pane informationPane = controller.addPanel(informations);

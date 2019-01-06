@@ -1,8 +1,8 @@
-package org.gleisbelegung.ui.node;
+package org.gleisbelegung.ui.lib.node;
 
 import javafx.scene.control.Button;
 import javafx.scene.text.Font;
-import org.gleisbelegung.ui.style.Style;
+import org.gleisbelegung.ui.lib.style.NodeWrapper;
 
 
 public class ButtonFactory {
@@ -15,15 +15,15 @@ public class ButtonFactory {
      * @param onClick
      * @return itialized and styled JavaFX Button
      */
-    public static Button create(String text, int fontSize, Runnable onClick) {
+    public static NodeWrapper<Button> create(String text, int fontSize,
+            Runnable onClick) {
         Button b = new Button(text);
-        Style.applyClass(b, "button");
         b.setFont(Font.font(fontSize));
 
         if (onClick != null)
             b.setOnAction((e) -> onClick.run());
 
-        return b;
+        return new NodeWrapper<>(b);
     }
 
     /**
@@ -33,7 +33,7 @@ public class ButtonFactory {
      * @param fontSize
      * @return
      */
-    public static Button create(String text, int fontSize) {
+    public static NodeWrapper<Button> create(String text, int fontSize) {
         return create(text, fontSize, null);
     }
 }

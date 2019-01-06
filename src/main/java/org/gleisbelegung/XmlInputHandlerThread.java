@@ -44,7 +44,7 @@ class XmlInputHandlerThread extends Thread {
                         .set("text", PLUGIN_TEXT));
                 break;
             case 402:
-                // TODO train with given ID unknown
+                Database.getInstance().getTrainList().remove(Integer.parseInt(xml.get("zid")));
                 break;
             case 450:
                 // TODO XML is not correct

@@ -5,7 +5,7 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import org.gleisbelegung.io.StsSocket;
-import org.gleisbelegung.ui.window.PluginWindow;
+import org.gleisbelegung.ui.main.MainWindow;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +23,7 @@ public class Plugin extends Application {
      */
     public static final int CONNECT_TIMEOUT = 500;
 
-    private PluginWindow pluginWindow = null;
+    private MainWindow mainWindow = null;
 
     /**
      * Update interval of train list in milliseconds
@@ -37,7 +37,7 @@ public class Plugin extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        pluginWindow = new PluginWindow(primaryStage);
+        mainWindow = new MainWindow(primaryStage);
 
         // TODO pass socket address from pluginWindow
         Thread xmlInputHandlerThread = new XmlInputHandlerThread(this);
@@ -55,7 +55,7 @@ public class Plugin extends Application {
 
             @Override
             public void run() {
-                pluginWindow.onFatalError("Verbindung zum StS verloren");
+                mainWindow.onFatalError("Verbindung zum StS verloren");
 
                 Platform.exit();
             }

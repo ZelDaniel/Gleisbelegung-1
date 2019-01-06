@@ -5,13 +5,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import org.gleisbelegung.database.Database;
-import org.gleisbelegung.sts.Plattform;
 import org.gleisbelegung.ui.lib.node.ButtonFactory;
 import org.gleisbelegung.ui.lib.node.LabelFactory;
 import org.gleisbelegung.ui.lib.panel.PanelInterface;
 import org.gleisbelegung.ui.lib.style.NodeWrapper;
 
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 
@@ -98,6 +98,7 @@ public class InformationPanel implements PanelInterface {
 
     private void updateGameTime(){
         SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         Database db = Database.getInstance();
 

@@ -3,6 +3,8 @@ package frontend;
 import data.Clock;
 import data.Facility;
 import data.Plattform;
+import data.Schedule;
+import data.ScheduleTemplate;
 import data.Train;
 import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.io.XmlSocket;
@@ -77,6 +79,18 @@ public class PluginTester {
             });
         }
 
+        ScheduleTemplate scheduleTemplate_S1 = new ScheduleTemplate() {
+            @Override
+            public void fillOut(Integer id, Train t) {
+                t.schedule.createNewEntry(
+                        "4A",
+                        "4A",
+                        String.format("%02d:%02d", 5 + (id.intValue() / 3), (id % 2 == 0 ? 17 : 3) + ((id.intValue() % 3) * 20)),
+                        String.format("%02d:%02d", 5 + (id.intValue() / 3), (id % 2 == 0 ? 17 : 3) + ((id.intValue() % 3) * 20))
+                );
+            }
+        };
+
         for (int i = 0; i < 50; ++i) {
             trains.put(i, new Train(i < 10 ? "S1" : (i < 15 ? "IRE" : ("RB")) + i));
         }
@@ -87,6 +101,7 @@ public class PluginTester {
             Train t = trains.get(i);
             t.verspaetung = i % 5 == 0 ? "-1" : "+3";
             if (i < 10) {
+                scheduleTemplate_S1.fillOut(i, t);
                 String h = t.nach;
                 t.nach = t.von;
                 t.von = h;
@@ -213,7 +228,7 @@ public class PluginTester {
                                 out.flush();
                                 while (!socket.isClosed()) {
                                     try {
-                                        XML xmlToSend = tester.console.queue.poll(1, TimeUnit.MINUTES);
+                                        XML xmlToSend = tester.console.queue.poll(1, TimeUnit.SECONDS);
                                         if (xmlToSend != null) {
                                             System.out.println("OUT (" + clock.getTimeString() + "):  " + xmlToSend);
                                             xmlSocket.write(xmlToSend);

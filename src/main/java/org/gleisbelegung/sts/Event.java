@@ -14,10 +14,29 @@ public class Event {
 	/**
 	 */
 	public enum EventType {
-		@SuppressWarnings("javadoc")
-		DEPARTURE("abfahrt"), @SuppressWarnings("javadoc")
-		ARRIVAL("ankunft"), @SuppressWarnings("javadoc")
-		EXIT("ausfahrt"), @SuppressWarnings("javadoc")
+		/**
+		 * initial value
+		 */
+		NONE(null),
+		/**
+		 * no event to expect
+		 */
+		NULL(null),
+		/**
+		 * train is at platform and is about to leave
+		 */
+		DEPARTURE("abfahrt"),
+		/**
+		 * train arrives at next platform
+		 */
+		ARRIVAL("ankunft"),
+		/**
+		 * train will leave the facility
+		 */
+		EXIT("ausfahrt"),
+		/**
+		 * train is not yet visible
+		 */
 		ENTER("einfahrt");
 
 		final String key;
@@ -48,7 +67,7 @@ public class Event {
 	 *            XML to parse
 	 * @param train
 	 *            Train for which given event has been generated
-	 * @return Event desribing new state of given train
+	 * @return Event describing new state of given train
 	 */
 	public static Event parse(final XML xml, final Train train) {
 		if (!xml.getKey().equals("ereignis")) {
@@ -124,10 +143,9 @@ public class Event {
 	}
 
 	public XML toXML() {
-		final Map<String, String> keyValuePairs = new HashMap<>();
-		keyValuePairs.put("zid", this.train.getID().toString());
-		keyValuePairs.put("art", this.type.key);
-		return XML.parse(this.type.key, keyValuePairs, null);
+		return XML.generateEmptyXML("ereignis")
+				.set("zid", train.getID().toString())
+				.set("art", this.type.key);
 	}
 
 	public Event replacePlattform(final Plattform plattform) {

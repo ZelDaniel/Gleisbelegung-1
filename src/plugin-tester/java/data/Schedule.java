@@ -3,35 +3,46 @@ package data;
 import org.gleisbelegung.xml.XML;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Schedule {
 
-    class ScheduleEntry {
+    public class ScheduleEntry {
 
         public String plan;
 		public String name;
 		public String ab;
 		public String an;
+		public String flags;
 
-		ScheduleEntry(String planned, String actual, String arrival, String depature) {
+		private boolean visited = false;
+
+		ScheduleEntry(String planned, String actual, String arrival, String depature, String flags) {
 		    this.plan = planned;
 		    this.name = actual;
 		    this.ab = depature;
 		    this.an = arrival;
+		    this.flags = flags;
         }
 
 		XML toXML() {
             XML xml = XML.generateEmptyXML("gleis");
             for (Field f : this.getClass().getFields()) {
-                try {
-                    xml.set(f.getName(), f.get(this).toString());
-                } catch (IllegalAccessException e) {
+                if (Modifier.isPublic(f.getModifiers())) {
+                    try {
+                        xml.set(f.getName(), f.get(this).toString());
+                    } catch (IllegalAccessException e) {
+                    }
                 }
             }
 
             return xml;
+        }
+
+        public void setVisited() {
+		    visited = true;
         }
 
     }
@@ -48,7 +59,11 @@ public class Schedule {
     }
 
     public Schedule createNewEntry(String planned, String actual, String arrival, String depature) {
-        this.entries.add(new ScheduleEntry(planned, actual, arrival, depature));
+        return createNewEntry(planned, actual, arrival, depature, "");
+    }
+
+    public Schedule createNewEntry(String planned, String actual, String arrival, String depature, String flags) {
+        this.entries.add(new ScheduleEntry(planned, actual, arrival, depature, flags));
 
         return this;
     }
@@ -59,5 +74,15 @@ public class Schedule {
         }
 
         return xml;
+    }
+
+    public ScheduleEntry getNext() {
+        for (ScheduleEntry se : entries) {
+            if (!se.visited) {
+                return se;
+            }
+        }
+
+        return null;
     }
 }

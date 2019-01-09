@@ -81,7 +81,7 @@ public class Console extends Thread {
                         }
                         break;
                     case "trainlist":
-                        if (!queue.add(Train.toXML(tester.trains.entrySet()))) {
+                        if (!queue.add(Train.toXmlList(tester.trains.entrySet()))) {
                             System.err.println("Failed to add train list into sending queue");
                         } else {
                             System.err.println("Successfully added train list into sending queue");
@@ -118,5 +118,9 @@ public class Console extends Thread {
     void setSocket(Socket s) {
         this.socket = s;
         queue.clear();
+    }
+
+    public void queueXml(XML xml) {
+        this.queue.add(xml);
     }
 }

@@ -8,7 +8,7 @@ public class Clock {
 
     public final long startTime = System.currentTimeMillis();
 
-    private long getSimTime() {
+    public long getSimTime() {
         return System.currentTimeMillis() - startTime + TimeUnit.HOURS.toMillis(5);
     }
 

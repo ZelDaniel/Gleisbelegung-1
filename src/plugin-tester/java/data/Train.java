@@ -1,11 +1,31 @@
 package data;
 
+import frontend.Console;
 import org.gleisbelegung.xml.XML;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 
 public class Train {
+    enum Event {
+        NONE, ARRIVAL, DEPATURE, ENTER, LEAVE;
+
+        public static Event getByArt(String art) {
+            switch (art) {
+                case "einfahrt":
+                    return ENTER;
+                case "ankunft":
+                    return ARRIVAL;
+                case "abfahrt":
+                    return DEPATURE;
+                case "ausfahrt":
+                    return LEAVE;
+            }
+
+            return null;
+        }
+    }
     public final String name;
     public String verspaetung = "0";
     public String plangleis = "4A";
@@ -15,6 +35,8 @@ public class Train {
     public Boolean sichtbar = Boolean.FALSE;
     public Boolean amgleis = Boolean.FALSE;
     public Schedule schedule = new Schedule();
+
+    private Event registeredEvent = Event.NONE;
 
     public Train(String name) {
         this.name = name;
@@ -27,9 +49,11 @@ public class Train {
             if (field.getName().equals("schedule")) {
                 continue;
             }
-            try {
-                xml.set(field.getName(), field.get(this).toString());
-            } catch (IllegalAccessException e) {
+            if (Modifier.isPublic(field.getModifiers())) {
+                try {
+                    xml.set(field.getName(), field.get(this).toString());
+                } catch (IllegalAccessException e) {
+                }
             }
         }
 
@@ -40,7 +64,7 @@ public class Train {
         return schedule.toXML(id);
     }
 
-    public static XML toXML(Iterable<Map.Entry<Integer, Train>> trains) {
+    public static XML toXmlList(Iterable<Map.Entry<Integer, Train>> trains) {
         XML xmlList = XML.generateEmptyXML("zugliste");
         for (Map.Entry<Integer, Train> train : trains) {
             xmlList = xmlList.addInternXML(XML.generateEmptyXML("zug")
@@ -50,5 +74,23 @@ public class Train {
         }
 
         return xmlList;
+    }
+
+    public void triggerArrival(Integer id, Console console, boolean withDFlag) {
+        amgleis = withDFlag;
+        if (registeredEvent == Event.ARRIVAL) {
+            console.queueXml(toXml(id));
+        }
+    }
+
+    public void triggerDepature(Integer id, Console console) {
+        amgleis = false;
+        if (registeredEvent == Event.DEPATURE) {
+            console.queueXml(toXml(id));
+        }
+    }
+
+    public void setRegisteredEvent(String event) {
+        registeredEvent = Event.getByArt(event);
     }
 }

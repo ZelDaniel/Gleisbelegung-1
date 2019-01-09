@@ -3,7 +3,7 @@ package frontend;
 import data.Clock;
 import data.Facility;
 import data.Plattform;
-import data.Schedule;
+import data.Schedule.ScheduleEntry;
 import data.ScheduleTemplate;
 import data.Train;
 import org.gleisbelegung.io.StsSocket;
@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PluginTester {
 
@@ -45,8 +47,11 @@ public class PluginTester {
     private void setup(ServerSocket socket) {
         this.facility = new Facility(flag.getFacilityName(), flag.getSimbuild(), flag.getAid());
         this.console.setServerSocket(socket);
+        this.console.start();
+    }
 
-        // stetup plattforms
+    private void reset() {
+        // setup plattforms
         Set<Plattform>[] hbfList = new Set[]{ new HashSet<>(), new HashSet<>(), new HashSet() };
          for (int i = 0; i < 4; ++i) {
             for (int part = 0; part < 2; ++part) {
@@ -124,8 +129,6 @@ public class PluginTester {
                 }
             }
         }
-
-        this.console.start();
     }
 
     public static void main(final String[] args) throws IOException {
@@ -139,11 +142,64 @@ public class PluginTester {
             serverSocket.bind(localAddress);
             System.out.println("Accepting connections at " + serverSocket.getLocalSocketAddress().toString());
             while (!serverSocket.isClosed()) {
+                tester.reset();
                 try (final Socket socket = serverSocket.accept()) {
                     tester.console.setSocket(socket);
                     System.out.println("Connected with " + socket.getRemoteSocketAddress());
-
                     final Clock clock = new Clock();
+
+                    final Thread runner = new Thread() {
+
+                        @Override
+                        public void run() {
+                            while(!socket.isClosed()) {
+                                final long currentSimTime = TimeUnit.MILLISECONDS.toMinutes(clock.getSimTime());
+
+                                // find schedule entry which will fire an event
+                                for (final Map.Entry<Integer,Train> entry : tester.trains.entrySet()) {
+                                    final Train t = entry.getValue();
+                                    ScheduleEntry next = t.schedule.getNext();
+                                    int delay = Integer.parseInt(t.verspaetung);
+                                    if (next != null) {
+                                        String scheduleTimeS;
+                                        if (t.amgleis) {
+                                            scheduleTimeS = next.ab;
+                                        } else {
+                                            scheduleTimeS = next.an;
+                                        }
+                                        Matcher m = Pattern.compile("([0-9]*):([0-9]*)").matcher(scheduleTimeS);
+                                        m.matches();
+                                        long scheduleTime = delay
+                                                + TimeUnit.HOURS.toMinutes(Integer.parseInt(m.group(1)))
+                                                + Integer.parseInt(m.group(2));
+                                        if (scheduleTime < currentSimTime) {
+                                            delay += currentSimTime - scheduleTime;
+                                            t.verspaetung = String.format("%+d", delay);
+
+                                            if (t.amgleis) {
+                                                t.triggerDepature(entry.getKey(), tester.console);
+                                                next.setVisited();
+                                            } else {
+                                                t.triggerArrival(entry.getKey(), tester.console, next.flags.indexOf('D') > 0);
+                                                if (next.flags.indexOf('D') > 0) {
+                                                    next.setVisited();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                try {
+                                    sleep((long) (Math.random() * TimeUnit.MINUTES.toMillis(2)));
+                                } catch (InterruptedException e) {
+                                    return;
+                                }
+                            }
+                        }
+                    };
+                    runner.setDaemon(true);
+                    runner.setName("runnerThread");
+                    runner.start();
+
                     final XmlSocket xmlSocket = new XmlSocket(socket);
                     final Thread inputHandler = new Thread() {
 
@@ -178,7 +234,7 @@ public class PluginTester {
                                             response = Plattform.toXML(tester.plattformList);
                                             break;
                                         case "zugliste":
-                                            response = Train.toXML(tester.trains.entrySet());
+                                            response = Train.toXmlList(tester.trains.entrySet());
                                             break;
                                         case "zugdetails":
                                             t = tester.trains.get(Integer.valueOf(xml.get("zid")));
@@ -200,6 +256,18 @@ public class PluginTester {
                                                         .setData(String.format("ZID %s unbekannt", xml.get("zid")));
                                             } else {
                                                 response = t.scheduleToXml(Integer.valueOf(xml.get("zid")));
+                                            }
+                                            break;
+                                        case "ereignis":
+                                            t = tester.trains.get(Integer.valueOf(xml.get("zid")));
+                                            if (t == null) {
+                                                response = XML.generateEmptyXML("status")
+                                                        .set("code", "402")
+                                                        .set("zid", xml.get("zid"))
+                                                        .setData(String.format("ZID %s unbekannt", xml.get("zid")));
+                                            } else {
+                                                t.setRegisteredEvent(xml.get("art"));
+                                                continue;
                                             }
                                             break;
                                         default:
@@ -247,6 +315,8 @@ public class PluginTester {
 
                     outputHandler.join();
                     inputHandler.join();
+                    runner.interrupt();
+                    runner.join();
                 } catch (Exception e) {
                     System.out.println("Socket closed");
                 }

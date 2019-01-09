@@ -3,6 +3,7 @@ package org.gleisbelegung;
 import org.gleisbelegung.database.Database;
 import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.sts.Details;
+import org.gleisbelegung.sts.Event;
 import org.gleisbelegung.sts.Facility;
 import org.gleisbelegung.sts.Plattform;
 import org.gleisbelegung.sts.Schedule;
@@ -81,23 +82,36 @@ class XmlInputHandlerThread extends Thread {
         this.plattformsPresent = true;
     }
 
-    private void handleDetails(XML xml) {
+    private void handleDetails(XML xml) throws  IOException {
         Train t = getTrain(xml);
         if (t != null) {
             Details details = Details.parse(xml);
             if (t.getDetails() == null) {
                 t.setPosition(details);
-                // TODO register event
+                checkRegisteredEvent(t);
             } else {
                 t.updateByDetails(details);
             }
         }
     }
 
-    private void handleSchedule(XML xml) {
+    private void handleSchedule(XML xml) throws IOException {
         Train t = getTrain(xml);
         if (t != null) {
             t.setSchedule(Schedule.parse(xml, t, Database.getInstance().getTrainList(), null));
+            checkRegisteredEvent(t);
+        } else {
+            // TODO
+            // t.updateSchedule
+        }
+    }
+
+    private void checkRegisteredEvent(Train t) throws IOException {
+        if (t.getAwaitedEventType() != t.getRegisteredEventType()) {
+            Event eventToRegister = t.registerNextEvent();
+            if (eventToRegister != null) {
+                stSSocket.write(eventToRegister.toXML());
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import org.gleisbelegung.io.StsSocket;
+import org.gleisbelegung.sts.Event;
 import org.gleisbelegung.ui.window.PluginWindow;
 
 import java.util.concurrent.TimeUnit;

@@ -40,18 +40,27 @@ public class InformationPanel implements PanelInterface {
                 gameTime.getNode()));
 
         Runnable r = () -> {
-            while (true){
+            while (!Thread.currentThread().isInterrupted()){
+                long taskStartTime = System.currentTimeMillis();
+
                 updateGameTime();
 
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                long taskEndTime = System.currentTimeMillis();
+                long sleepTime = taskEndTime - taskStartTime + TimeUnit.SECONDS.toMillis(1);
+                if (sleepTime > 0) {
+                    try {
+                        Thread.sleep(sleepTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+
                 }
             }
         };
         Thread t = new Thread(r);
         t.setDaemon(true);
+        t.setName("UI_UpdateSimTime");
         t.start();
 
         return pane.getNode();

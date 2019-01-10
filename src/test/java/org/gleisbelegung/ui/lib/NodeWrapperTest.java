@@ -1,4 +1,4 @@
-package org.gleisbelegung.ui;
+package org.gleisbelegung.ui.lib;
 
 import javafx.scene.layout.Pane;
 import org.gleisbelegung.ui.lib.style.NodeWrapper;
@@ -55,5 +55,16 @@ public class NodeWrapperTest {
                 .contains("-fx-background-color: #303030"));
         assertTrue(nodeWrapper.getNode().getStyle()
                 .contains("-fx-text-fill: red"));
+    }
+
+    @Test public void testColor(){
+        BackgroundColor backgroundColor = new BackgroundColor("red");
+        assertEquals("-fx-background-color: red", backgroundColor.apply());
+
+        backgroundColor = new BackgroundColor("303030");
+        assertEquals("-fx-background-color: #303030", backgroundColor.apply());
+
+        backgroundColor = new BackgroundColor("#303030");
+        assertEquals("-fx-background-color: #303030", backgroundColor.apply());
     }
 }

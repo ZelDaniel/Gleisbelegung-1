@@ -43,7 +43,11 @@ public class Train {
     }
 
     public XML toXml(Integer id) {
-        XML xml = XML.generateEmptyXML("zugdetails");
+        return toXml(id, "zugedetails");
+    }
+
+    private XML toXml(Integer id, String key) {
+        XML xml = XML.generateEmptyXML(key);
         xml.set("zid", id.toString());
         for (Field field : Train.class.getDeclaredFields()) {
             if (field.getName().equals("schedule")) {
@@ -79,14 +83,14 @@ public class Train {
     public void triggerArrival(Integer id, Console console, boolean withDFlag) {
         amgleis = withDFlag;
         if (registeredEvent == Event.ARRIVAL) {
-            console.queueXml(toXml(id));
+             console.queueXml(toXml(id, "ereignis"));
         }
     }
 
     public void triggerDepature(Integer id, Console console) {
         amgleis = false;
         if (registeredEvent == Event.DEPATURE) {
-            console.queueXml(toXml(id));
+            console.queueXml(toXml(id, "ereignis"));
         }
     }
 

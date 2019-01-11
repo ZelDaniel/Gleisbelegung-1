@@ -54,12 +54,25 @@ public class Console extends Thread {
         this.serverSocket = serverSocket;
     }
 
+    private void printHelp() {
+        System.out.println("Supported commands\n");
+        System.out.printf("%-30s: %s\n", "help", "Prints this message");
+        System.out.printf("%-30s: %s\n", "quit", "Closes the socket and terminates the tester.");
+        System.out.printf("%-30s: %s\n", "delay <train id>", "Adjust the delay of a train.");
+        System.out.printf("%-30s: %s\n", "trainlist", "Sends the trainlist (<zugliste>).");
+        System.out.printf("%-30s: %s\n", "remove train <train id>", "Removes a train.");
+        System.out.printf("%-30s: %s\n", "close", "Closes the socket to the current connected plugin.");
+    }
+
     private void handleInput(final String input) throws IOException {
         String[] tokens = input.toLowerCase().split("\t+|\r+| +");
         for (int i = 0; i < tokens.length; ++i) {
             String token = tokens[i];
             try {
                 switch (token) {
+                    case "help":
+                        printHelp();
+                        return;
                     case "quit":
                         System.in.close();
                         this.serverSocket.close();

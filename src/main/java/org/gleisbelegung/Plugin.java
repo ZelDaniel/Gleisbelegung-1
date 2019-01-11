@@ -36,6 +36,11 @@ public class Plugin extends Application {
      */
     private long scheduleUpdateInterval = TimeUnit.SECONDS.toMillis(30);
 
+    /**
+     * Update interval of schedule in milliseconds
+     */
+    private long trainDetailsUpdateInterval = TimeUnit.MINUTES.toMillis(5);
+
     @Override
     public void start(Stage primaryStage) {
         pluginWindow = new PluginWindow(primaryStage);
@@ -79,8 +84,8 @@ public class Plugin extends Application {
     /**
      * Informs the ui that the simtime, list of plattforms and the info of the facility are present
      */
-    void initializationCompleted() {
-        // TODO
+    void initializationCompleted(StsSocket socket) {
+        UpdateThread.createTrainDetailsUpdateTask(socket, this).start();
     }
 
     /**
@@ -95,5 +100,12 @@ public class Plugin extends Application {
      */
     long getScheduleUpdateInterval() {
         return scheduleUpdateInterval;
+    }
+
+    /**
+     * @return Update interval in milliseconds
+     */
+    long getTrainDetailsUpdateInterval() {
+        return trainDetailsUpdateInterval;
     }
 }

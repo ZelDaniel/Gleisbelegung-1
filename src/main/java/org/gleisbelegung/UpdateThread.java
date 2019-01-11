@@ -65,6 +65,25 @@ abstract class UpdateThread extends Thread {
         }
     }
 
+    private static class TrainDetailsUpdateThread extends UpdateThread {
+
+        private TrainDetailsUpdateThread(StsSocket socket, Plugin plugin, String name) {
+            super(socket, plugin, name);
+        }
+
+        @Override
+        public void doTask() throws IOException {
+            for (Train t : Database.getInstance().getTrainList()) {
+                socket.requestDetails(t);
+            }
+        }
+
+        @Override
+        public long getInterval() {
+            return plugin.getTrainDetailsUpdateInterval();
+        }
+    }
+
     public static UpdateThread createTrainListUpdateTask(StsSocket socket, Plugin plugin) {
         return new TrainListUpdateTask(socket, plugin, "TrainListUpdateThread");
     }
@@ -75,6 +94,10 @@ abstract class UpdateThread extends Thread {
 
     public static UpdateThread createSimtimeUpdateTask(StsSocket socket, Plugin plugin) {
         return new SimTimeUpdateThread(socket, plugin, "SimTimeUpdateThread");
+    }
+
+    public static UpdateThread createTrainDetailsUpdateTask(StsSocket socket, Plugin plugin) {
+        return new TrainDetailsUpdateThread(socket, plugin, "TrainDetailsUpdateThread");
     }
 
     protected final StsSocket socket;

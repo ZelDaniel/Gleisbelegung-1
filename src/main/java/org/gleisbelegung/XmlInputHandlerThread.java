@@ -179,7 +179,7 @@ class XmlInputHandlerThread extends Thread {
                 }
                 if (!complete && plattformsPresent && simtimePresent && facilityPresent) {
                     complete = true;
-                    plugin.initializationCompleted();
+                    plugin.initializationCompleted(stSSocket);
                 }
             } catch (Exception e) {
                 if (socket.isClosed()) {

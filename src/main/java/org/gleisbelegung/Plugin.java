@@ -100,7 +100,7 @@ public class Plugin extends Application {
     }
 
     public void tryConnection(String host){
-        Thread xmlInputHandlerThread = new XmlInputHandlerThread(this);
+        Thread xmlInputHandlerThread = new XmlInputHandlerThread(this, host);
         xmlInputHandlerThread.setName("PluginApplicationThread");
         xmlInputHandlerThread.start();
     }

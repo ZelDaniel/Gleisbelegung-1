@@ -18,6 +18,7 @@ import static org.gleisbelegung.Plugin.*;
 class XmlInputHandlerThread extends Thread {
 
     private final Plugin plugin;
+    private final String host;
     private StsSocket stSSocket;
 
     private boolean facilityPresent = false;
@@ -28,8 +29,9 @@ class XmlInputHandlerThread extends Thread {
         SOCKET_CLOSED, ERROR
     }
 
-    public XmlInputHandlerThread(Plugin plugin) {
+    public XmlInputHandlerThread(Plugin plugin, String host) {
         this.plugin = plugin;
+        this.host = host;
     }
 
     private void handleStatus(XML xml) throws IOException {
@@ -94,7 +96,7 @@ class XmlInputHandlerThread extends Thread {
     private boolean tryConnect(Socket socket) throws IOException {
         socket.bind(null);
         try {
-            socket.connect(new InetSocketAddress("localhost", StsSocket.PORT), CONNECT_TIMEOUT);
+            socket.connect(new InetSocketAddress(host, StsSocket.PORT), CONNECT_TIMEOUT);
         } catch (SocketException e) {
             return false;
         }

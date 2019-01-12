@@ -241,8 +241,7 @@ public class PluginTester {
                                             if (t == null) {
                                                 response = XML.generateEmptyXML("status")
                                                         .set("code", "402")
-                                                        .set("zid", xml.get("zid"))
-                                                        .setData("ZID unbekannt");
+                                                        .setData(String.format("ZID %s unbekannt", xml.get("zid")));
                                             } else {
                                                 response = t.toXml(Integer.valueOf(xml.get("zid")));
                                             }
@@ -252,7 +251,6 @@ public class PluginTester {
                                             if (t == null) {
                                                 response = XML.generateEmptyXML("status")
                                                         .set("code", "402")
-                                                        .set("zid", xml.get("zid"))
                                                         .setData(String.format("ZID %s unbekannt", xml.get("zid")));
                                             } else {
                                                 response = t.scheduleToXml(Integer.valueOf(xml.get("zid")));

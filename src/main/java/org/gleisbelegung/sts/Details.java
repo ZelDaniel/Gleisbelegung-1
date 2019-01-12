@@ -93,6 +93,10 @@ public class Details {
 		
 	}
 
+	public void setInvisible() {
+		visible = false;
+	}
+
 	public String to() {
 		return this.target;
 	}

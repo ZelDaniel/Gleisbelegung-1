@@ -173,6 +173,16 @@ public class Train implements Comparable<Train> {
 		switch (event.getType()) {
 		case ARRIVAL:
 			this.lastArrived = event.getPlattform();
+			final Train eTrain = schedule.getCurrentEntry().getFlags().getE();
+			final Train fTrain = schedule.getCurrentEntry().getFlags().getF();
+			if (eTrain != null) {
+				eTrain.details.source = details.source;
+				eTrain.updateByEvent(event);
+			}
+			if (fTrain != null) {
+				fTrain.details.source = details.source;
+				fTrain.updateByEvent(event);
+			}
 			break;
 		case DEPARTURE:
 			if (this.details.atPlattform)
@@ -180,6 +190,10 @@ public class Train implements Comparable<Train> {
 			if (this.lastArrived != null
 					& this.details.plattform == this.lastArrived) {
 				this.schedule.advance();
+			}
+			final Train kTrain = schedule.getCurrentEntry().getFlags().getK();
+			if (kTrain != null) {
+				kTrain.details.setInvisible();
 			}
 			break;
 		case ENTER:
@@ -223,25 +237,24 @@ public class Train implements Comparable<Train> {
 		this.pred = t;
 	}
 
-	public void processF(final Details details) {
-		this.details.source = details.source;
-		this.details.atPlattform = true;
-		if (details.plattformPlanned == this.schedule.getFirstEntry().getPlattformPlanned()) {
-			this.details.setVisible();
-		}
-	}
-
 	public Event.EventType getAwaitedEventType() {
 		if (schedule == null || details == null) {
 			return Event.EventType.NONE;
 		}
 		if (!details.isVisible()) {
+			if (pred != null && lastArrived == null) {
+				// first stop of train with E/F flag
+				return Event.EventType.DEPARTURE;
+			}
 			return Event.EventType.ENTER;
 		}
 		if (details.isAtPlattform()) {
 			return Event.EventType.DEPARTURE;
 		}
 		if (details.plattform == Plattform.EMPTY) {
+			return Event.EventType.EXIT;
+		}
+		if (id.intValue() < 0) {
 			return Event.EventType.EXIT;
 		}
 

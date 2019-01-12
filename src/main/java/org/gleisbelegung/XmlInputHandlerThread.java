@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.gleisbelegung.Plugin.*;
 
@@ -35,6 +37,8 @@ class XmlInputHandlerThread extends Thread {
         this.plugin = plugin;
     }
 
+    private final Pattern zidUnbekannt = Pattern.compile("ZID ([0-9]*) unbekannt");
+
     private void handleStatus(XML xml) throws IOException {
         int status = Integer.parseInt(xml.get("code"));
         switch (status) {
@@ -47,7 +51,10 @@ class XmlInputHandlerThread extends Thread {
                         .set("text", PLUGIN_TEXT));
                 break;
             case 402:
-                Database.getInstance().getTrainList().remove(Integer.parseInt(xml.get("zid")));
+                Matcher matcher = zidUnbekannt.matcher(xml.getData());
+                matcher.matches();
+                String zid = matcher.group(1);
+                Database.getInstance().getTrainList().remove(Integer.parseInt(zid));
                 break;
             case 450:
                 // TODO XML is not correct
@@ -100,6 +107,7 @@ class XmlInputHandlerThread extends Thread {
         if (t != null) {
             t.setSchedule(Schedule.parse(xml, t, Database.getInstance().getTrainList(), null));
             checkRegisteredEvent(t);
+            // TODO check E,F,K
         } else {
             // TODO
             // t.updateSchedule
@@ -127,6 +135,12 @@ class XmlInputHandlerThread extends Thread {
         }
     }
 
+    private void handleEvent(XML xml) throws IOException {
+        Train t = getTrain(xml);
+        t.updateByEvent(Event.parse(xml, t));
+        checkRegisteredEvent(t);
+    }
+
     private Train getTrain(XML xml) {
         return Database.getInstance().getTrainList().get(xml.get("zid"));
     }
@@ -150,6 +164,7 @@ class XmlInputHandlerThread extends Thread {
             try {
                 final XML readXml = stSSocket.read();
                 if (readXml == null) {
+                    System.err.println("Closing socket");
                     socket.close();
                     continue;
                 }
@@ -175,6 +190,10 @@ class XmlInputHandlerThread extends Thread {
                         break;
                     case "zugliste":
                         handleTrainList(readXml);
+                        break;
+                    case "ereignis":
+                        handleEvent(readXml);
+                        System.out.println(readXml.toString());
                         break;
                 }
                 if (!complete && plattformsPresent && simtimePresent && facilityPresent) {

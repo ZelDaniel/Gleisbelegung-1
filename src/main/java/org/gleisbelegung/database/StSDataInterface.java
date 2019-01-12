@@ -1,10 +1,13 @@
 package org.gleisbelegung.database;
 
+import org.gleisbelegung.sts.Train;
 import org.gleisbelegung.sts.Trainlist;
+
+import java.util.List;
 
 public interface StSDataInterface {
 
-    public void setTrainList(Trainlist trainList);
+    void setTrainList(Trainlist trainList);
 
-    Trainlist getTrainList();
+    List<Train> getTrainList();
 }

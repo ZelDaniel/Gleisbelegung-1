@@ -7,40 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.gleisbelegung.annotations.Threadsafe;
-import org.gleisbelegung.database.StSDataInterface;
 import org.gleisbelegung.xml.XML;
 
 /**
  * Represenation of zugliste
  */
 public class Trainlist implements Iterable<Train> {
-
-	/**
-	 * Creates a new trainlist or updates the existing one by parsing given XML describing a train list in
-	 * XML notation.
-	 *
-	 * @param handler
-	 *            instance of a singleton to assert uniqueness of the train list instance
-	 * @param xml
-	 *            the trainlist to parse
-	 * @return parsed trainlist
-	 */
-	@Threadsafe
-	public static Trainlist parse(final StSDataInterface handler, final XML xml) {
-		final Trainlist list;
-		synchronized (Trainlist.class) {
-			if (null != handler.getTrainList()) {
-				list = handler.getTrainList();
-			} else {
-				list = new Trainlist(handler);
-			}
-		}
-		if (!xml.getKey().equals("zugliste")) {
-			throw new IllegalArgumentException();
-		}
-		return list.update(xml);
-	}
-
 	/**
 	 * The real collection of train currently known
 	 */
@@ -52,11 +24,7 @@ public class Trainlist implements Iterable<Train> {
 	 */
 	private final Map<Integer, Train> history = new HashMap<>();
 
-	private final StSDataInterface handler;
-
-	private Trainlist(final StSDataInterface handler) {
-		this.handler = handler;
-		handler.setTrainList(this);
+	public Trainlist() {
 	}
 
 	@Threadsafe
@@ -91,9 +59,6 @@ public class Trainlist implements Iterable<Train> {
 	}
 
 	private void remove(final Integer id, final Train old) {
-		if (old != null) {
-			old.removedFromList(this.handler);
-		}
 		this.history.put(id, old);
 	}
 

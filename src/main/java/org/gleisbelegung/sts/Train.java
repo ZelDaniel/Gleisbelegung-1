@@ -206,16 +206,6 @@ public class Train implements Comparable<Train> {
 		}
 	}
 
-	/**
-	 * Callback from Trainlist that this instance is no longer needed.
-	 *
-	 * @param stsHandler
-	 */
-	void removedFromList(StSDataInterface stsHandler)
-	{
-		// TODO notify observers once implemented
-	}
-
 	private void updateRemovedPredecessor(final Train removedTrain) {
 		if (this.pred == removedTrain) {
 			if (!this.pred.details.isVisible()) {

@@ -29,6 +29,7 @@ class XmlInputHandlerThread extends Thread {
     private boolean facilityPresent = false;
     private boolean simtimePresent = false;
     private boolean plattformsPresent = false;
+    private Trainlist trainlist;
 
     enum ExitReason {
         SOCKET_CLOSED, ERROR
@@ -56,7 +57,7 @@ class XmlInputHandlerThread extends Thread {
                 Matcher matcher = zidUnbekannt.matcher(xml.getData());
                 matcher.matches();
                 String zid = matcher.group(1);
-                Database.getInstance().getTrainList().remove(Integer.parseInt(zid));
+                trainlist.remove(Integer.parseInt(zid));
                 break;
             case 450:
                 // TODO XML is not correct
@@ -106,7 +107,7 @@ class XmlInputHandlerThread extends Thread {
     private void handleSchedule(XML xml) throws IOException {
         Train t = getTrain(xml);
         if (t != null && t.getSchedule() == null) {
-            t.setSchedule(Schedule.parse(xml, t, Database.getInstance().getTrainList(), null));
+            t.setSchedule(Schedule.parse(xml, t, trainlist, null));
             for (Event.EventType eventType : Event.EventType.values()) {
                 stSSocket.registerEvent(eventType, t);
             }
@@ -117,14 +118,22 @@ class XmlInputHandlerThread extends Thread {
     }
 
     private void handleTrainList(XML xml) throws IOException {
-        Trainlist trains = Trainlist.parse(Database.getInstance(), xml);
-        for (Train train : trains) {
+        boolean initTrainlist = false;
+        if (trainlist == null) {
+            initTrainlist = true;
+            trainlist = new Trainlist();
+        }
+        trainlist.update(xml);
+        for (Train train : trainlist.toList()) {
             if (train.getDetails() == null) {
                 stSSocket.requestDetails(train);
             }
             if (train.getSchedule() == null) {
                 stSSocket.requestSchedule(train);
             }
+        }
+        if (initTrainlist) {
+            Database.getInstance().setTrainList(trainlist);
         }
     }
 
@@ -134,7 +143,7 @@ class XmlInputHandlerThread extends Thread {
     }
 
     private Train getTrain(XML xml) {
-        return Database.getInstance().getTrainList().get(xml.get("zid"));
+        return trainlist.get(xml.get("zid"));
     }
 
     private boolean tryConnect(Socket socket) throws IOException {

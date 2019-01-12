@@ -3,8 +3,10 @@ package org.gleisbelegung.database;
 import org.gleisbelegung.annotations.Threadsafe;
 import org.gleisbelegung.sts.Facility;
 import org.gleisbelegung.sts.Plattform;
+import org.gleisbelegung.sts.Train;
 import org.gleisbelegung.sts.Trainlist;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
@@ -83,17 +85,27 @@ public class Database implements StSDataInterface {
     @Override
     @Threadsafe
     public void setTrainList(Trainlist trainList) {
-        this.trainList = trainList;
+        synchronized (Trainlist.class) {
+            this.trainList = trainList;
+            Trainlist.class.notifyAll();
+        }
     }
 
     @Threadsafe
     @Override
-    public Trainlist getTrainList() {
+    public List<Train> getTrainList() {
         if (trainList != null) {
-            return trainList;
+            return trainList.toList();
         }
         synchronized (Trainlist.class) {
-            return trainList;
+            while(trainList == null) {
+                try {
+                    Trainlist.class.wait();
+                } catch (InterruptedException e) {
+                    return null;
+                }
+            }
+            return trainList.toList();
         }
     }
 }

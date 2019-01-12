@@ -1,8 +1,12 @@
 package org.gleisbelegung.ui.main;
 
+import javafx.geometry.Pos;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import org.gleisbelegung.ui.lib.node.GridPaneFactory;
+import org.gleisbelegung.ui.lib.node.LabelFactory;
 import org.gleisbelegung.ui.lib.panel.Panel;
-import org.gleisbelegung.ui.lib.panel.PanelInterface;
 import org.gleisbelegung.ui.lib.style.NodeWrapper;
 import org.gleisbelegung.ui.lib.style.color.BackgroundColor;
 
@@ -15,9 +19,15 @@ public class TablePanel extends Panel {
     NodeWrapper<Pane> pane;
 
     @Override public Pane init() {
-        pane = new NodeWrapper<>(new Pane());
+        NodeWrapper<GridPane> platformGridPane = GridPaneFactory.create();
 
-        pane.addStyle(new BackgroundColor("#f00"));
+        for(int i = 0; i < 12; i++) {
+            platformGridPane.getNode().add(LabelFactory.create(i+"", 13, 100, Pos.CENTER).getNode(), i, 0);
+        }
+
+        pane = new NodeWrapper<>(new Pane(platformGridPane.getNode()));
+
+
 
         return pane.getNode();
     }

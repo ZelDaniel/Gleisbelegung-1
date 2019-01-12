@@ -5,8 +5,8 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import org.gleisbelegung.io.StsSocket;
-import org.gleisbelegung.sts.Event;
-import org.gleisbelegung.ui.window.PluginWindow;
+import org.gleisbelegung.ui.launch.LaunchWindow;
+import org.gleisbelegung.ui.main.MainWindow;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +24,8 @@ public class Plugin extends Application {
      */
     public static final int CONNECT_TIMEOUT = 500;
 
-    private PluginWindow pluginWindow = null;
+    private MainWindow mainWindow = null;
+    private LaunchWindow launchWindow;
 
     /**
      * Update interval of train list in milliseconds
@@ -43,12 +44,7 @@ public class Plugin extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        pluginWindow = new PluginWindow(primaryStage);
-
-        // TODO pass socket address from pluginWindow
-        Thread xmlInputHandlerThread = new XmlInputHandlerThread(this);
-        xmlInputHandlerThread.setName("PluginApplicationThread");
-        xmlInputHandlerThread.start();
+        launchWindow = new LaunchWindow(this);
     }
 
     /**
@@ -61,7 +57,10 @@ public class Plugin extends Application {
 
             @Override
             public void run() {
-                pluginWindow.onFatalError("Verbindung zum StS verloren");
+                //Is possible, if the initialization of the Date is not finished and a fatal error occurs
+                if(mainWindow != null){
+                    mainWindow.onFatalError("Verbindung zum StS verloren");
+                }
 
                 Platform.exit();
             }
@@ -78,13 +77,17 @@ public class Plugin extends Application {
         UpdateThread.createTrainListUpdateTask(socket, this).start();
         UpdateThread.createScheduleUpdateTask(socket, this).start();
 
-        // TODO inform pluginWindow that the connection has been establised
+        launchWindow.connectionEstablished();
     }
 
     /**
      * Informs the ui that the simtime, list of plattforms and the info of the facility are present
      */
     void initializationCompleted(StsSocket socket) {
+        Platform.runLater(() -> {
+            launchWindow.initializationCompleted();
+            mainWindow = new MainWindow(new Stage());
+        });
         UpdateThread.createTrainDetailsUpdateTask(socket, this).start();
     }
 
@@ -107,5 +110,11 @@ public class Plugin extends Application {
      */
     long getTrainDetailsUpdateInterval() {
         return trainDetailsUpdateInterval;
+    }
+
+    public void tryConnection(String host){
+        Thread xmlInputHandlerThread = new XmlInputHandlerThread(this, host);
+        xmlInputHandlerThread.setName("PluginApplicationThread");
+        xmlInputHandlerThread.start();
     }
 }

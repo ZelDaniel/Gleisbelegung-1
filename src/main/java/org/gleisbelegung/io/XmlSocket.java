@@ -28,4 +28,18 @@ public class XmlSocket {
     public boolean isClosed() {
         return socket.isClosed();
     }
+
+    /**
+     * close the open socket
+     * @return success
+     */
+    public boolean close(){
+        try {
+            socket.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

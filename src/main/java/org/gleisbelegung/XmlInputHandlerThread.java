@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +25,7 @@ class XmlInputHandlerThread extends Thread {
 
     private final Plugin plugin;
     private final String host;
-    private StsSocket stSSocket;
+    private StsSocket stsSocket;
 
     private boolean facilityPresent = false;
     private boolean simtimePresent = false;
@@ -46,7 +47,7 @@ class XmlInputHandlerThread extends Thread {
         int status = Integer.parseInt(xml.get("code"));
         switch (status) {
             case 300:
-                stSSocket.write(XML.generateEmptyXML("register")
+                stsSocket.write(XML.generateEmptyXML("register")
                         .set("name", PLUGIN_NAME)
                         .set("autor", AUTHOR)
                         .set("version", VERSION)
@@ -64,9 +65,9 @@ class XmlInputHandlerThread extends Thread {
                 break;
             case 220:
                 // handshake completed
-                plugin.connectionEstablished(stSSocket);
-                stSSocket.requestFacilityInfo();
-                stSSocket.requestPlattformList();
+                plugin.connectionEstablished(stsSocket);
+                stsSocket.requestFacilityInfo();
+                stsSocket.requestPlattformList();
                 break;
         }
     }
@@ -109,7 +110,7 @@ class XmlInputHandlerThread extends Thread {
         if (t != null && t.getSchedule() == null) {
             t.setSchedule(Schedule.parse(xml, t, trainlist, null));
             for (Event.EventType eventType : Event.EventType.values()) {
-                stSSocket.registerEvent(eventType, t);
+                stsSocket.registerEvent(eventType, t);
             }
         } else {
             // TODO
@@ -126,10 +127,10 @@ class XmlInputHandlerThread extends Thread {
         trainlist.update(xml);
         for (Train train : trainlist.toList()) {
             if (train.getDetails() == null) {
-                stSSocket.requestDetails(train);
+                stsSocket.requestDetails(train);
             }
             if (train.getSchedule() == null) {
-                stSSocket.requestSchedule(train);
+                stsSocket.requestSchedule(train);
             }
         }
         if (initTrainlist) {
@@ -150,7 +151,8 @@ class XmlInputHandlerThread extends Thread {
         socket.bind(null);
         try {
             socket.connect(new InetSocketAddress(host, StsSocket.PORT), CONNECT_TIMEOUT);
-        } catch (SocketException e) {
+        } catch (SocketException | SocketTimeoutException e) {
+            e.printStackTrace();
             return false;
         }
 
@@ -158,12 +160,12 @@ class XmlInputHandlerThread extends Thread {
     }
 
     private ExitReason handleInput(Socket socket) {
-        stSSocket = new StsSocket(socket);
+        stsSocket = new StsSocket(socket);
         boolean complete = false;
 
         while(!socket.isClosed()) {
             try {
-                final XML readXml = stSSocket.read();
+                final XML readXml = stsSocket.read();
                 if (readXml == null) {
                     System.err.println("Closing socket");
                     socket.close();
@@ -199,7 +201,7 @@ class XmlInputHandlerThread extends Thread {
                 }
                 if (!complete && plattformsPresent && simtimePresent && facilityPresent) {
                     complete = true;
-                    plugin.initializationCompleted(stSSocket);
+                    plugin.initializationCompleted(stsSocket);
                 }
             } catch (Exception e) {
                 if (socket.isClosed()) {
@@ -210,22 +212,29 @@ class XmlInputHandlerThread extends Thread {
             }
         }
         // TODO logging
-
         return ExitReason.SOCKET_CLOSED;
     }
 
     @Override
     public void run() {
-        while (true) {
-            try (Socket socket = new Socket()) {
-                if (tryConnect(socket)) {
-                    handleInput(socket);
-                    plugin.tearDown();
-                    return;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        try (Socket socket = new Socket()) {
+            if (tryConnect(socket)) {
+                handleInput(socket);
+                plugin.tearDown();
+                return;
+            } else {
+                plugin.connectionFailed();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    /**
+     * called if {@link org.gleisbelegung.ui.main.MainWindow MainWindow} is closed and the socket should be closed now
+     * @return success
+     */
+    public boolean closeConnection(){
+        return stsSocket.close();
     }
 }

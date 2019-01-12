@@ -52,11 +52,24 @@ public class LaunchWindow implements WindowInterface {
 
     }
 
+    /**
+     * called if the connection to the simulation was established
+     */
     public void connectionEstablished(){
         ((MainPanel)main).connectionEstablished();
     }
 
+    /**
+     * called after {@link LaunchWindow#connectionEstablished()} and some initial data was received
+     */
     public void initializationCompleted(){
         controller.close();
+    }
+
+    /**
+     * called if the plugin was unable to connect to the simulation
+     */
+    public void connectionFailed(){
+        ((MainPanel)main).connectionFailed();
     }
 }

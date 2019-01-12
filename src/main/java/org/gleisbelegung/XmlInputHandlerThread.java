@@ -97,7 +97,6 @@ class XmlInputHandlerThread extends Thread {
             Details details = Details.parse(xml);
             if (t.getDetails() == null) {
                 t.setPosition(details);
-                checkRegisteredEvent(t);
             } else {
                 t.updateByDetails(details);
             }
@@ -106,22 +105,14 @@ class XmlInputHandlerThread extends Thread {
 
     private void handleSchedule(XML xml) throws IOException {
         Train t = getTrain(xml);
-        if (t != null) {
+        if (t != null && t.getSchedule() == null) {
             t.setSchedule(Schedule.parse(xml, t, Database.getInstance().getTrainList(), null));
-            checkRegisteredEvent(t);
-            // TODO check E,F,K
+            for (Event.EventType eventType : Event.EventType.values()) {
+                stSSocket.registerEvent(eventType, t);
+            }
         } else {
             // TODO
             // t.updateSchedule
-        }
-    }
-
-    private void checkRegisteredEvent(Train t) throws IOException {
-        if (t.getAwaitedEventType() != t.getRegisteredEventType()) {
-            Event eventToRegister = t.registerNextEvent();
-            if (eventToRegister != null) {
-                stSSocket.write(eventToRegister.toXML());
-            }
         }
     }
 
@@ -140,7 +131,6 @@ class XmlInputHandlerThread extends Thread {
     private void handleEvent(XML xml) throws IOException {
         Train t = getTrain(xml);
         t.updateByEvent(Event.parse(xml, t));
-        checkRegisteredEvent(t);
     }
 
     private Train getTrain(XML xml) {

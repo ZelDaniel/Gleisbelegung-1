@@ -237,44 +237,10 @@ public class Train implements Comparable<Train> {
 		this.pred = t;
 	}
 
-	public Event.EventType getAwaitedEventType() {
-		if (schedule == null || details == null) {
-			return Event.EventType.NONE;
-		}
-		if (!details.isVisible()) {
-			if (pred != null && lastArrived == null) {
-				// first stop of train with E/F flag
-				return Event.EventType.DEPARTURE;
-			}
-			return Event.EventType.ENTER;
-		}
-		if (details.isAtPlattform()) {
-			return Event.EventType.DEPARTURE;
-		}
-		if (details.plattform == Plattform.EMPTY) {
-			return Event.EventType.EXIT;
-		}
-		if (id.intValue() < 0) {
-			return Event.EventType.EXIT;
-		}
-
-		return Event.EventType.ARRIVAL;
-	}
-
 	public Event.EventType getRegisteredEventType() {
 		if (null == registeredEvent) {
 			return Event.EventType.NULL;
 		}
 		return registeredEvent.getType();
-	}
-
-	public Event registerNextEvent() {
-		if (getAwaitedEventType() == Event.EventType.NONE) {
-			return null;
-		}
-		Event event = new Event(getAwaitedEventType(), this, System.currentTimeMillis());
-		this.registeredEvent = event;
-
-		return event;
 	}
 }

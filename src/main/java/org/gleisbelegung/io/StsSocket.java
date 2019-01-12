@@ -3,6 +3,7 @@ package org.gleisbelegung.io;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.gleisbelegung.sts.Event;
 import org.gleisbelegung.sts.Train;
 import org.gleisbelegung.xml.XML;
 
@@ -16,6 +17,7 @@ public class StsSocket extends XmlSocket {
     private final static XML facitlityInfoXml = XML.generateEmptyXML("anlageninfo");
     private final static XML detailsXml = XML.generateEmptyXML("zugdetails");
     private final static XML scheduleXml = XML.generateEmptyXML("zugfahrplan");
+    private final static XML eventXml = XML.generateEmptyXML("ereignis");
 
     public StsSocket(Socket socket) {
         super(socket);
@@ -42,5 +44,13 @@ public class StsSocket extends XmlSocket {
 
     public void requestSchedule(Train train) throws IOException {
         write(scheduleXml.set("zid", train.getID().toString()));
+    }
+
+    public void registerEvent(Event.EventType eventType, Train train) throws IOException {
+        if (eventType.getKey() != null
+            && (train.getID() >= 0 || eventType == Event.EventType.EXIT)
+        ) {
+            write(eventXml.set("art", eventType.getKey()).set("zid", train.getID().toString()));
+        }
     }
 }

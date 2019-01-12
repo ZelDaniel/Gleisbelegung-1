@@ -141,15 +141,4 @@ public class Event {
 	public String toString() {
 		return this.type.toString();
 	}
-
-	public XML toXML() {
-		return XML.generateEmptyXML("ereignis")
-				.set("zid", train.getID().toString())
-				.set("art", this.type.key);
-	}
-
-	public Event replacePlattform(final Plattform plattform) {
-		return new Event(this, plattform);
-	}
-
 }

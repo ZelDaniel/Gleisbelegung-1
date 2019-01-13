@@ -362,6 +362,18 @@ public class XML {
 		return new ArrayList<>(this.subXML);
 	}
 
+	public XML addInternXML(XML intern) {
+		if (this.subXML == null) {
+			List<XML> subXML = new ArrayList<>();
+			subXML.add(intern);
+
+			return new XML(this.key, this.data, this.keyValuePairs, subXML);
+		}
+        this.subXML.add(intern);
+
+		return this;
+	}
+
 	/**
 	 * @return the tag of this XML
 	 */
@@ -415,11 +427,20 @@ public class XML {
 		return sb.toString();
 	}
 
-	public void set(String key, String value) {
+	public XML set(String key, String value) {
 		if (key == null) {
 			throw new IllegalArgumentException("key is null");
 		}
+		if (key == "") {
+			throw new IllegalArgumentException("key is empty");
+		}
 		this.keyValuePairs.put(key, value);
+
+		return this;
+	}
+
+	public XML setData(String data) {
+		 return new XML(this.key, data, this.keyValuePairs, this.subXML);
 	}
 
 	enum XMLParseState {

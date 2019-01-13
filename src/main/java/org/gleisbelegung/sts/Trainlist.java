@@ -1,66 +1,38 @@
 package org.gleisbelegung.sts;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.gleisbelegung.annotations.Threadsafe;
 import org.gleisbelegung.xml.XML;
-
 
 /**
  * Represenation of zugliste
  */
 public class Trainlist implements Iterable<Train> {
+	/**
+	 * The real collection of train currently known
+	 */
+	private final Map<Integer, Train> idMap = new HashMap<>();
 
 	/**
-	 * Creates a new trainlist by parsing given XML describing a trainlist in
-	 * XML notation.
-	 *
-	 * @param handler
-	 *            instance of caller
-	 * @param xml
-	 *            the trainlist to parse
-	 * @return parsed trainlist
+	 * Contains the list of trains removed by reported status code=402 to prevent re-adding trains which are about to
+	 * leave the sim.
 	 */
-	public static Trainlist parse(final StSHandlerInterface handler, final XML xml) {
-		if (!xml.getKey().equals("zugliste")) {
-			throw new IllegalArgumentException();
-		}
-		final List<XML> trainsXML = xml.getInternXML();
-		final Trainlist list = new Trainlist(handler);
-		for (final XML trainXML : trainsXML) {
-			final Train train = Train.createFromXML(trainXML);
-			list.idMap.put(train.getID(), train);
-		}
-
-		return list;
-	}
-
-	private final Map<Integer, Train> idMap = new HashMap<>();
 	private final Map<Integer, Train> history = new HashMap<>();
-	private final Map<Integer, Train> dummyIdMap = new HashMap<>();
-	private final StSHandlerInterface handler;
 
-	private Trainlist(final StSHandlerInterface handler) {
-		this.handler = handler;
+	public Trainlist() {
 	}
 
-	synchronized Train createByIdOnly(final Integer Id) {
-		final Train t = Train.createByIdOnly(Id);
-		this.dummyIdMap.put(Id, t);
-		return t;
-	}
-
+	@Threadsafe
 	public synchronized Train get(final Integer id) {
-		final Train t = this.idMap.get(id);
-		if (t != null)
-			return t;
-		return this.dummyIdMap.get(id);
+		return this.idMap.get(id);
 	}
 
+	@Threadsafe
 	public Train get(final String id) {
 		final Integer zid = Integer.valueOf(id);
 		return get(zid);
@@ -76,28 +48,26 @@ public class Trainlist implements Iterable<Train> {
 		return this.idMap.values().iterator();
 	}
 
-	synchronized void purge(final Integer id) throws InterruptedException {
-		final Train t = this.idMap.get(id);
+	synchronized void purge(final Integer id) {
 		remove(id);
-		this.history.remove(id);
 		System.err.printf("Destroying train id=%d\n", id);
-		if (t == null)
-			return;
-
 	}
 
-	public synchronized void remove(final Integer id)
-			throws InterruptedException {
+	@Threadsafe
+	public synchronized void remove(final Integer id) {
 		final Train old = this.idMap.remove(id);
-		if (old != null)
-			old.removedFromList(this.handler);
+	}
+
+	private void remove(final Integer id, final Train old) {
 		this.history.put(id, old);
 	}
 
-	public void remove(final Train train) throws InterruptedException {
+	@Threadsafe
+	public void remove(final Train train) {
 		remove(train.getID());
 	}
 
+	@Threadsafe
 	public synchronized List<Train> toList() {
 		final List<Train> l = new ArrayList<>(this.idMap.size());
 		l.addAll(this.idMap.values());
@@ -114,16 +84,17 @@ public class Trainlist implements Iterable<Train> {
 		return this.idMap.values().toString();
 	}
 
-	@SafeVarargs
-	public final synchronized void update(final XML trainlistXML,
-			final Map<Train, ?>... otherMaps) throws InterruptedException {
+	@Threadsafe
+	public final synchronized Trainlist update(final XML trainlistXML) {
 		final List<XML> trainsXML = trainlistXML.getInternXML();
 		final Map<Integer, Train> oldMap = this.idMap;
 		final Map<Integer, Train> newMap = new HashMap<>();
-		final ArrayDeque<Train> toRemove = new ArrayDeque<>();
-		this.dummyIdMap.clear();
 		final Map<Integer, Train> historyOld = new HashMap<>(this.history);
 		this.history.clear();
+
+		/*
+		 * step 1: create new list of train
+		 */
 		for (final XML trainXML : trainsXML) {
 			final Integer id = Integer.valueOf(trainXML.get("zid"));
 			final Train train;
@@ -139,29 +110,24 @@ public class Trainlist implements Iterable<Train> {
 			}
 			newMap.put(id, train);
 		}
-		for (final Integer id : oldMap.keySet()) {
-			final Train old = oldMap.get(id);
-			toRemove.add(old);
-		}
-		for (final Train t : toRemove) {
-			final Integer id = t.getID();
-			if (id.intValue() > 0) {
-				remove(id);
-			} else {
-				purge(id);
+
+		/*
+		 * step 2: remove all train which are not part of new list
+		 */
+		for (final Iterator<Integer> ids = oldMap.keySet().iterator(); ids.hasNext(); ) {
+			Integer id = ids.next();
+			Train removedTrain = oldMap.get(id);
+			ids.remove();
+			remove(id, removedTrain);
+			if (id.intValue() < 0) {
+				this.history.remove(id);
 			}
 		}
 		assert oldMap.isEmpty();
 		this.idMap.clear();
 		this.idMap.putAll(newMap);
-		if (!toRemove.isEmpty())
-			for (final Map<Train, ?> map : otherMaps) {
-				synchronized (map) {
-					for (final Train t : toRemove) {
-						map.remove(t);
-					}
-				}
-			}
+
+		return this;
 	}
 
 	public boolean isEmpty() {

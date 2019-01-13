@@ -22,7 +22,9 @@ public class Schedule implements Iterable<ScheduleEntry> {
 		final List<XML> entriesXML = xml.getInternXML();
 		final ScheduleEntry.ScheduleEntryParseResult result =
 				ScheduleEntry.parse(entriesXML, train, trains);
-		missingReferences.addAll(result.missing);
+		if (missingReferences != null) {
+			missingReferences.addAll(result.missing);
+		}
 		final List<ScheduleEntry> entries = result.entries;
 		final Schedule schedule = new Schedule(entries);
 		return schedule;

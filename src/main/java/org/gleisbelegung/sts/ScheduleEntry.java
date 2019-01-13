@@ -24,7 +24,7 @@ public class ScheduleEntry {
 	}
 
 	public static final ScheduleEntry EMPTY =
-			new ScheduleEntry(Plattform.EMPTY, 0, 0, ScheduleFlags.EMPTY);
+			new ScheduleEntry(Plattform.EMPTY, Plattform.EMPTY, 0, 0, ScheduleFlags.EMPTY);
 
 	private static long getTimeDiff(long timeNow, int time, int delay) {
 		long diff;
@@ -78,7 +78,8 @@ public class ScheduleEntry {
 		final String plattform = xml.get("name");
 		final String depS = xml.get("ab");
 		final String arrS = xml.get("an");
-		final Plattform pf = Plattform.get(plan, plattform);
+		final Plattform pPlan = Plattform.get(plan);
+		final Plattform pActual = Plattform.get(plattform);
 		final int dep, arr;
 		if ((depS == null) || depS.isEmpty()) {
 			dep = 0;
@@ -91,9 +92,9 @@ public class ScheduleEntry {
 			arr = ScheduleEntry.timeToMinutes(arrS);
 		}
 		final ScheduleFlags flags =
-				ScheduleFlags.parse(xml, train, trains, missingIDs, pf, arr);
+				ScheduleFlags.parse(xml, train, trains, missingIDs, pPlan, arr);
 
-		return new ScheduleEntry(pf, dep, arr, flags);
+		return new ScheduleEntry(pPlan, pActual, dep, arr, flags);
 	}
 
 	private static int timeToMinutes(final String s) {
@@ -106,10 +107,12 @@ public class ScheduleEntry {
 	private final ScheduleFlags flags;
 
 	private final Plattform plattform;
+	private final Plattform plattformPlanned;
 
-	private ScheduleEntry(final Plattform plattform, final int depature,
+	private ScheduleEntry(final Plattform plattformPlanned, final Plattform plattformActual, final int depature,
 			final int arrival, final ScheduleFlags flags) {
-		this.plattform = plattform;
+		this.plattform = plattformActual;
+		this.plattformPlanned = plattformPlanned;
 		this.depature = depature;
 		this.arrival = arrival;
 		this.flags = flags;
@@ -121,6 +124,10 @@ public class ScheduleEntry {
 
 	public Plattform getPlattform() {
 		return this.plattform;
+	}
+
+	public Plattform getPlattformPlanned() {
+		return this.plattformPlanned;
 	}
 
 	public String getTimeDiffArrival(long timeMillis, int delay) {

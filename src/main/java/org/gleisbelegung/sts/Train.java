@@ -1,5 +1,6 @@
 package org.gleisbelegung.sts;
 
+import org.gleisbelegung.database.StSDataInterface;
 import org.gleisbelegung.xml.XML;
 
 /**
@@ -20,6 +21,8 @@ public class Train implements Comparable<Train> {
 	private Train pred;
 	private Plattform lastArrived;
 
+	private Event registeredEvent;
+
 	private Train(final Integer id, final String name) {
 		this.id = id;
 		this.name = name;
@@ -34,10 +37,6 @@ public class Train implements Comparable<Train> {
 			this.name_traintype = TrainType.create(name.substring(0, delim));
 		}
 
-	}
-
-	static Train createByIdOnly(final Integer id) {
-		return new Train(id, id.toString());
 	}
 
 	static Train createFromXML(final XML xml) {
@@ -63,7 +62,7 @@ public class Train implements Comparable<Train> {
 		return cmp;
 	}
 
-	public String getDelay() {
+	public String formatDelay() {
 		return String.format(
 				"%s %3d", this.details.delay <= 0
 						? this.details.delay == 0 ? " " : "-" : "+",
@@ -106,16 +105,17 @@ public class Train implements Comparable<Train> {
 	}
 
 	/**
-	 * Updates the postion in the schedule according to details
+	 * Updates the position in the schedule according to details
 	 *
 	 * @param details
 	 */
 	public void setPosition(final Details details) {
 		final Schedule schedule = this.schedule;
-		assert schedule != null;
 		this.details = details;
 
-		schedule.setPos(details);
+		if (schedule != null) {
+			schedule.setPos(details);
+		}
 	}
 
 	// E-/ K-flag
@@ -173,6 +173,16 @@ public class Train implements Comparable<Train> {
 		switch (event.getType()) {
 		case ARRIVAL:
 			this.lastArrived = event.getPlattform();
+			final Train eTrain = schedule.getCurrentEntry().getFlags().getE();
+			final Train fTrain = schedule.getCurrentEntry().getFlags().getF();
+			if (eTrain != null) {
+				eTrain.details.source = details.source;
+				eTrain.updateByEvent(event);
+			}
+			if (fTrain != null) {
+				fTrain.details.source = details.source;
+				fTrain.updateByEvent(event);
+			}
 			break;
 		case DEPARTURE:
 			if (this.details.atPlattform)
@@ -180,6 +190,10 @@ public class Train implements Comparable<Train> {
 			if (this.lastArrived != null
 					& this.details.plattform == this.lastArrived) {
 				this.schedule.advance();
+			}
+			final Train kTrain = schedule.getCurrentEntry().getFlags().getK();
+			if (kTrain != null) {
+				kTrain.details.setInvisible();
 			}
 			break;
 		case ENTER:
@@ -190,16 +204,6 @@ public class Train implements Comparable<Train> {
 			break;
 
 		}
-	}
-
-	/**
-	 * Callback from Trainlist that this instance is no longer needed.
-	 *
-	 * @param stsHandler
-	 */
-	void removedFromList(StSHandlerInterface stsHandler)
-	{
-
 	}
 
 	private void updateRemovedPredecessor(final Train removedTrain) {
@@ -223,11 +227,10 @@ public class Train implements Comparable<Train> {
 		this.pred = t;
 	}
 
-	public void processF(final Details details) {
-		this.details.source = details.source;
-		this.details.atPlattform = true;
-		if (details.plattform.getPlan() == this.schedule.getFirstEntry().getPlattform().getPlan()) {
-			this.details.setVisible();
+	public Event.EventType getRegisteredEventType() {
+		if (null == registeredEvent) {
+			return Event.EventType.NULL;
 		}
+		return registeredEvent.getType();
 	}
 }

@@ -71,9 +71,9 @@ public class Plugin extends Application {
      * The regular update of the train list and schedules will be initiated.
      */
     void connectionEstablished(StsSocket socket) {
-        UpdateThread.createSimtimeUpdateTask(socket, this).start();
-        UpdateThread.createTrainListUpdateTask(socket, this).start();
-        UpdateThread.createScheduleUpdateTask(socket, this).start();
+        UpdateTask.createSimtimeUpdateTask(socket, this).start();
+        UpdateTask.createTrainListUpdateTask(socket, this).start();
+        UpdateTask.createScheduleUpdateTask(socket, this).start();
 
         launchWindow.connectionEstablished();
     }
@@ -86,7 +86,7 @@ public class Plugin extends Application {
             launchWindow.initializationCompleted();
             mainWindow = new MainWindow(new Stage(), this);
         });
-        UpdateThread.createTrainDetailsUpdateTask(socket, this).start();
+        UpdateTask.createTrainDetailsUpdateTask(socket, this).start();
     }
 
     /**

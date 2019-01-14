@@ -27,7 +27,7 @@ abstract class UpdateTask implements IntervalTask{
         }
 
         @Override
-        public long getInterval() {
+        public long getIntervalInMillis() {
             return plugin.getTrainListUpdateInterval();
         }
     }
@@ -53,7 +53,7 @@ abstract class UpdateTask implements IntervalTask{
         }
 
         @Override
-        public long getInterval() {
+        public long getIntervalInMillis() {
             return plugin.getScheduleUpdateInterval();
         }
     }
@@ -74,7 +74,7 @@ abstract class UpdateTask implements IntervalTask{
         }
 
         @Override
-        public long getInterval() {
+        public long getIntervalInMillis() {
             return TimeUnit.MINUTES.toMillis(15);
         }
     }
@@ -97,25 +97,25 @@ abstract class UpdateTask implements IntervalTask{
         }
 
         @Override
-        public long getInterval() {
+        public long getIntervalInMillis() {
             return plugin.getTrainDetailsUpdateInterval();
         }
     }
 
     public static IntervalTaskThread createTrainListUpdateTask(StsSocket socket, Plugin plugin) {
-        return new IntervalTaskThread(plugin,"TrainListUpdateThread", new TrainListUpdateTask(socket, plugin));
+        return new IntervalTaskThread("TrainListUpdateThread", new TrainListUpdateTask(socket, plugin));
     }
 
     public static IntervalTaskThread createScheduleUpdateTask(StsSocket socket, Plugin plugin) {
-        return new IntervalTaskThread(plugin, "ScheduleUpdateTask", new ScheduleUpdateTask(socket, plugin));
+        return new IntervalTaskThread("ScheduleUpdateTask", new ScheduleUpdateTask(socket, plugin));
     }
 
     public static IntervalTaskThread createSimtimeUpdateTask(StsSocket socket, Plugin plugin) {
-        return new IntervalTaskThread(plugin, "SimTimeUpdateTask", new SimTimeUpdateTask(socket, plugin));
+        return new IntervalTaskThread("SimTimeUpdateTask", new SimTimeUpdateTask(socket, plugin));
     }
 
     public static IntervalTaskThread createTrainDetailsUpdateTask(StsSocket socket, Plugin plugin) {
-        return new IntervalTaskThread(plugin, "TrainDetailsUpdateTask", new TrainDetailsUpdateTask(socket, plugin));
+        return new IntervalTaskThread("TrainDetailsUpdateTask", new TrainDetailsUpdateTask(socket, plugin));
     }
 
     protected final Plugin plugin;

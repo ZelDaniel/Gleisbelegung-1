@@ -6,7 +6,7 @@ public interface IntervalTask extends Runnable {
      *
      * @return The desired time between to starts of this task in milliseconds
      */
-    long getInterval();
+    long getIntervalInMillis();
 
     boolean continueExecution();
 }

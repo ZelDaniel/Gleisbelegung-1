@@ -12,22 +12,22 @@ public class Schedule {
     public class ScheduleEntry {
 
         public String plan;
-		public String name;
-		public String ab;
-		public String an;
-		public String flags;
+        public String name;
+        public String ab;
+        public String an;
+        public String flags;
 
-		private boolean visited = false;
+        private boolean visited = false;
 
-		ScheduleEntry(String planned, String actual, String arrival, String depature, String flags) {
-		    this.plan = planned;
-		    this.name = actual;
-		    this.ab = depature;
-		    this.an = arrival;
-		    this.flags = flags;
+        ScheduleEntry(String planned, String actual, String arrival, String depature, String flags) {
+            this.plan = planned;
+            this.name = actual;
+            this.ab = depature;
+            this.an = arrival;
+            this.flags = flags;
         }
 
-		XML toXML() {
+        XML toXML() {
             XML xml = XML.generateEmptyXML("gleis");
             for (Field f : this.getClass().getFields()) {
                 if (Modifier.isPublic(f.getModifiers())) {
@@ -42,7 +42,7 @@ public class Schedule {
         }
 
         public void setVisited() {
-		    visited = true;
+            visited = true;
         }
 
     }

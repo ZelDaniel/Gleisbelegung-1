@@ -6,24 +6,24 @@ import java.util.List;
 
 import org.gleisbelegung.xml.XML;
 
-public class Plattform {
+public class Platform {
 
-    private final String name;
-    public final Set<Plattform> neighbours = new HashSet<>();
+    public final Set<Platform> neighbours = new HashSet<>();
+    public final String name;
 
-    public Plattform(final String name) {
+    public Platform(final String name) {
         this.name = name;
     }
 
-    public static XML toXML(List<Plattform> plattformList) {
+    public static XML toXML(List<Platform> platformList) {
         XML xmlList = XML.generateEmptyXML("bahnsteigliste");
-        for (Plattform p : plattformList) {
+        for (Platform p : platformList) {
             XML xmlPlattform = XML.generateEmptyXML("bahnsteig")
                     .set("name", p.name);
-            for (Plattform pn : p.neighbours) {
+            for (Platform pn : p.neighbours) {
                 xmlPlattform = xmlPlattform.addInternXML(
                         XML.generateEmptyXML("n")
-                        .set("name", pn.name)
+                                .set("name", pn.name)
                 );
             }
             xmlList = xmlList.addInternXML(xmlPlattform);

@@ -8,14 +8,14 @@ public class Facility {
     private final int simbuild;
     private final int aid;
 
-    public static Facility parse(XML xml) {
-        return new Facility(xml.get("name"), Integer.parseInt(xml.get("simbuild")), Integer.parseInt(xml.get("aid")));
-    }
-
     private Facility(final String name, int simbuild, int aid) {
         this.name = name;
         this.simbuild = simbuild;
         this.aid = aid;
+    }
+
+    public static Facility parse(XML xml) {
+        return new Facility(xml.get("name"), Integer.parseInt(xml.get("simbuild")), Integer.parseInt(xml.get("aid")));
     }
 
     public String getName() {

@@ -1,8 +1,11 @@
 package org.gleisbelegung.sts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -11,174 +14,207 @@ import org.gleisbelegung.xml.XML;
 
 public class ScheduleEntry {
 
-	static class ScheduleEntryParseResult {
+    public static final ScheduleEntry EMPTY =
+            new ScheduleEntry(Plattform.EMPTY, Plattform.EMPTY, 0, 0, ScheduleFlags.EMPTY);
+    private final int arrival, depature;
+    private final ScheduleFlags flags;
+    private Plattform plattform;
+    private final Plattform plattformPlanned;
 
-		final List<ScheduleEntry> entries;
-		final Set<Integer> missing;
+    private ScheduleEntry(final Plattform plattformPlanned, final Plattform plattformActual, final int depature,
+            final int arrival, final ScheduleFlags flags) {
+        this.plattform = plattformActual;
+        this.plattformPlanned = plattformPlanned;
+        this.depature = depature;
+        this.arrival = arrival;
+        this.flags = flags;
+    }
 
-		public ScheduleEntryParseResult(final List<ScheduleEntry> entries,
-				final Set<Integer> complete) {
-			this.entries = entries;
-			this.missing = complete;
-		}
-	}
+    private static long getTimeDiff(long timeNow, int time, int delay) {
+        long diff;
+        if (time == 0) {
+            return Long.MAX_VALUE;
+        }
+        diff = TimeUnit.MINUTES.toMillis(time + delay) - timeNow;
+        return diff;
+    }
 
-	public static final ScheduleEntry EMPTY =
-			new ScheduleEntry(Plattform.EMPTY, Plattform.EMPTY, 0, 0, ScheduleFlags.EMPTY);
+    private static String timeDiffToString(long diff, boolean neg) {
+        if (diff == Long.MAX_VALUE) {
+            return "";
+        }
+        final String signum;
+        if (diff < 0) {
+            diff = -diff;
+            signum = neg ? " " : "+";
+        } else {
+            signum = neg ? "-" : " ";
+        }
+        if (diff == 0) {
+            return "";
+        }
+        int seconds = (int) (TimeUnit.MILLISECONDS.toSeconds(diff) % 60);
+        int minutes = (int) (TimeUnit.MILLISECONDS.toMinutes(diff));
+        if (minutes / 60 >= 1000) {
+            return " - - - -";
+        }
+        if (minutes >= 100) {
+            return signum + String.format(" %2d.%02d", minutes / 60,
+                    minutes % 60 * 100 / 60);
+        }
+        return signum + String.format(" %02d:%02d", minutes % 100, seconds);
+    }
 
-	private static long getTimeDiff(long timeNow, int time, int delay) {
-		long diff;
-		if (time == 0)
-			return Long.MAX_VALUE;
-		diff = TimeUnit.MINUTES.toMillis(time + delay) - timeNow;
-		return diff;
-	}
+    public static ScheduleEntryParseResult parse(final List<XML> entriesXML,
+            final Train train, final Map<Integer, Train> trains) {
+        final List<ScheduleEntry> entries = new ArrayList<>(entriesXML.size());
+        final Map<ScheduleEntry, Set<Integer>> missingIds = new HashMap<>();
+        for (final XML entryXML : entriesXML) {
+            Set<Integer> referredIds = new HashSet<>();
+            final ScheduleEntry e =
+                    ScheduleEntry.parse(entryXML, train, trains, referredIds);
+            entries.add(e);
+            missingIds.put(e, referredIds);
+        }
+        return new ScheduleEntryParseResult(entries, missingIds);
+    }
 
-	private static String timeDiffToString(long diff, boolean neg) {
-		if (diff == Long.MAX_VALUE)
-			return "";
-		final String signum;
-		if (diff < 0) {
-			diff = -diff;
-			signum = neg ? " " : "+";
-		} else
-			signum = neg ? "-" : " ";
-		if (diff == 0)
-			return "";
-		int seconds = (int) (TimeUnit.MILLISECONDS.toSeconds(diff) % 60);
-		int minutes = (int) (TimeUnit.MILLISECONDS.toMinutes(diff));
-		if (minutes / 60 >= 1000) {
-			return " - - - -";
-		} 
-		if (minutes >= 100) {
-			return signum + String.format(" %2d.%02d", minutes / 60,
-					minutes % 60 * 100 / 60);
-		}
-		return signum + String.format(" %02d:%02d", minutes % 100, seconds);
-	}
+    public static void updateWithExisting(final List<XML> entriesXML,
+            final Train train, Schedule existing) {
+        ScheduleEntryParseResult result = parse(entriesXML, train, null);
 
-	public static ScheduleEntryParseResult parse(final List<XML> entriesXML,
-			final Train train, final Trainlist trains) {
-		final List<ScheduleEntry> entries = new ArrayList<>(entriesXML.size());
-		Set<Integer> referredIds = new HashSet<>();
-		for (final XML entryXML : entriesXML) {
-			final ScheduleEntry e =
-					ScheduleEntry.parse(entryXML, train, trains, referredIds);
-			entries.add(e);
-		}
-		return new ScheduleEntryParseResult(entries, referredIds);
-	}
+        // find the first entry of result within existing
+        Iterator<ScheduleEntry> existingIter = existing.iterator();
+        Iterator<ScheduleEntry> resultIter = result.entries.iterator();
+        ScheduleEntry firstOfResultInExisting = null;
+        if (resultIter.hasNext()) {
+            ScheduleEntry resultEntry = resultIter.next();
+            while (existingIter.hasNext()) {
+                ScheduleEntry next = existingIter.next();
+                if (next.arrival == resultEntry.arrival) {
+                    firstOfResultInExisting = next;
+                    break;
+                }
+            }
+            firstOfResultInExisting.updatePlattform(resultEntry);
 
-	private static ScheduleEntry parse(final XML xml, final Train train,
-			final Trainlist trains, final Set<Integer> missingIDs) {
-		if (!xml.getKey().equals("gleis")) {
-			throw new IllegalArgumentException();
-		}
-		final String plan = xml.get("plan");
-		final String plattform = xml.get("name");
-		final String depS = xml.get("ab");
-		final String arrS = xml.get("an");
-		final Plattform pPlan = Plattform.get(plan);
-		final Plattform pActual = Plattform.get(plattform);
-		final int dep, arr;
-		if ((depS == null) || depS.isEmpty()) {
-			dep = 0;
-		} else {
-			dep = ScheduleEntry.timeToMinutes(depS);
-		}
-		if ((arrS == null) || arrS.isEmpty()) {
-			arr = 0;
-		} else {
-			arr = ScheduleEntry.timeToMinutes(arrS);
-		}
-		final ScheduleFlags flags =
-				ScheduleFlags.parse(xml, train, trains, missingIDs, pPlan, arr);
+            while (existingIter.hasNext() && resultIter.hasNext()) {
+                existingIter.next().updatePlattform(resultIter.next());
+            }
+        }
+    }
 
-		return new ScheduleEntry(pPlan, pActual, dep, arr, flags);
-	}
+    private static ScheduleEntry parse(final XML xml, final Train train,
+            final Map<Integer, Train> trains, final Set<Integer> missingIDs) {
+        if (!xml.getKey().equals("gleis")) {
+            throw new IllegalArgumentException();
+        }
+        final String plan = xml.get("plan");
+        final String plattform = xml.get("name");
+        final String depS = xml.get("ab");
+        final String arrS = xml.get("an");
+        final Plattform pPlan = Plattform.get(plan);
+        final Plattform pActual = Plattform.get(plattform);
+        final int dep, arr;
+        if ((depS == null) || depS.isEmpty()) {
+            dep = 0;
+        } else {
+            dep = ScheduleEntry.timeToMinutes(depS);
+        }
+        if ((arrS == null) || arrS.isEmpty()) {
+            arr = 0;
+        } else {
+            arr = ScheduleEntry.timeToMinutes(arrS);
+        }
+        final ScheduleFlags flags =
+                ScheduleFlags.parse(xml, train, trains, missingIDs, pPlan, arr);
 
-	private static int timeToMinutes(final String s) {
-		final String parts[] = s.split(":");
-		return (Integer.parseInt(parts[0]) * 60) + Integer.parseInt(parts[1]);
-	}
+        return new ScheduleEntry(pPlan, pActual, dep, arr, flags);
+    }
 
-	private final int arrival, depature;
+    private static int timeToMinutes(final String s) {
+        final String parts[] = s.split(":");
+        return (Integer.parseInt(parts[0]) * 60) + Integer.parseInt(parts[1]);
+    }
 
-	private final ScheduleFlags flags;
+    public ScheduleFlags getFlags() {
+        return this.flags;
+    }
 
-	private final Plattform plattform;
-	private final Plattform plattformPlanned;
+    public Plattform getPlattform() {
+        return this.plattform;
+    }
 
-	private ScheduleEntry(final Plattform plattformPlanned, final Plattform plattformActual, final int depature,
-			final int arrival, final ScheduleFlags flags) {
-		this.plattform = plattformActual;
-		this.plattformPlanned = plattformPlanned;
-		this.depature = depature;
-		this.arrival = arrival;
-		this.flags = flags;
-	}
+    public Plattform getPlattformPlanned() {
+        return this.plattformPlanned;
+    }
 
-	public ScheduleFlags getFlags() {
-		return this.flags;
-	}
+    public String getTimeDiffArrival(long timeMillis, int delay) {
 
-	public Plattform getPlattform() {
-		return this.plattform;
-	}
+        return timeDiffToString(getTimeDiffArrivalMillis(timeMillis, delay),
+                false);
+    }
 
-	public Plattform getPlattformPlanned() {
-		return this.plattformPlanned;
-	}
+    public long getTimeDiffArrivalMillis(long timeMillis, int delay) {
+        if (this == EMPTY) {
+            return Long.MAX_VALUE;
+        }
+        return getTimeDiff(timeMillis, this.arrival, delay);
+    }
 
-	public String getTimeDiffArrival(long timeMillis, int delay) {
+    public String getTimeDiffDepature(long timeMillis, int delay,
+            boolean atPlattform, boolean currentStop) {
+        if (this == EMPTY) {
+            return "";
+        }
+        if (currentStop && atPlattform && delay != 0) {
+            return getTimeDiffDepature(timeMillis, 0, true, true);
+        }
+        int haltTime = this.depature - this.arrival;
+        long diff = getTimeDiff(timeMillis, this.depature,
+                Math.max(delay - haltTime, 0));
+        return timeDiffToString(diff, !atPlattform && currentStop);
+    }
 
-		return timeDiffToString(getTimeDiffArrivalMillis(timeMillis, delay),
-				false);
-	}
+    @Override
+    public String toString() {
+        return this.plattform.toString() + "(" + this.flags.toString() + ")";
+    }
 
-	public long getTimeDiffArrivalMillis(long timeMillis, int delay) {
-		if (this == EMPTY) {
-			return Long.MAX_VALUE;
-		}
-		return getTimeDiff(timeMillis, this.arrival, delay);
-	}
+    public long getTimeDiffDepatureMillis(long timeMillis, int delay) {
+        return getTimeDiff(timeMillis, this.depature, delay);
+    }
 
-	public String getTimeDiffDepature(long timeMillis, int delay,
-			boolean atPlattform, boolean currentStop) {
-		if (this == EMPTY) {
-			return "";
-		}
-		if (currentStop && atPlattform && delay != 0) {
-			return getTimeDiffDepature(timeMillis, 0, true, true);
-		}
-		int haltTime = this.depature - this.arrival;
-		long diff = getTimeDiff(timeMillis, this.depature,
-				Math.max(delay - haltTime, 0));
-		return timeDiffToString(diff, !atPlattform && currentStop);
-	}
+    /**
+     * @return Time of Depature in minutes since 00:00
+     */
+    public int getDepature() {
+        return this.depature;
+    }
 
-	@Override
-	public String toString() {
-		return this.plattform.toString() + "(" + this.flags.toString() + ")";
-	}
+    /**
+     * @return Time of Arrival in minutes since 00:00
+     */
+    public int getArrival() {
+        return this.arrival;
+    }
 
-	public long getTimeDiffDepatureMillis(long timeMillis, int delay) {
-		return getTimeDiff(timeMillis, this.depature, delay);
-	}
+    private void updatePlattform(ScheduleEntry recent) {
+        if (this.plattform != recent.plattform) {
+            System.err.printf("Replacing %s by %s\n", this.plattform, recent.plattform);
+            this.plattform = recent.plattform;
+        }
+    }
 
-	/**
-	 * 
-	 * @return Time of Depature in minutes since 00:00
-	 */
-	public int getDepature() {
-		return this.depature;
-	}
+    static class ScheduleEntryParseResult {
 
-	/**
-	 * 
-	 * @return Time of Arrival in minutes since 00:00
-	 */
-	public int getArrival() {
-		return this.arrival;
-	}
+        final List<ScheduleEntry> entries;
+        final Map<ScheduleEntry, Set<Integer>> missing;
+
+        public ScheduleEntryParseResult(final List<ScheduleEntry> entries,
+                final Map<ScheduleEntry, Set<Integer>> complete) {
+            this.entries = entries;
+            this.missing = complete;
+        }
+    }
 }

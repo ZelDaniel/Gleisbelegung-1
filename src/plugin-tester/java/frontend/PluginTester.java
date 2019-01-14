@@ -2,7 +2,7 @@ package frontend;
 
 import data.Clock;
 import data.Facility;
-import data.Plattform;
+import data.Platform;
 import data.Schedule.ScheduleEntry;
 import data.ScheduleTemplate;
 import data.Train;
@@ -32,10 +32,9 @@ public class PluginTester {
 
     private final Flag flag;
     private final Console console;
-    private final List<Plattform> plattformList = new LinkedList<>();
+    final List<Platform> platformList = new LinkedList<>();
     final Map<Integer, Train> trains = new HashMap<>();
-
-    private Facility facility;
+    Facility facility;
 
     private PluginTester(final Flag flag) {
         this.flag = flag;
@@ -52,34 +51,35 @@ public class PluginTester {
 
     private void reset() {
         // setup plattforms
-        Set<Plattform>[] hbfList = new Set[]{ new HashSet<>(), new HashSet<>(), new HashSet() };
+        Set<Platform>[] hbfList = new Set[]{ new HashSet<>(), new HashSet<>(), new HashSet() };
+        platformList.clear();
          for (int i = 0; i < 4; ++i) {
             for (int part = 0; part < 2; ++part) {
-                Plattform p = new Plattform(Integer.toString(i + 1) + (char) ('A' + part));
+                Platform p = new Platform(Integer.toString(i + 1) + (char) ('A' + part));
                 hbfList[0].add(p);
-                plattformList.add(p);
+                platformList.add(p);
             }
         }
         for (int i = 4; i < 10; ++i) {
             for (int part = 0; part < 4; ++part) {
-                Plattform p = new Plattform(Integer.toString(i + 1) + (char) ('A' + part));
+                Platform p = new Platform(Integer.toString(i + 1) + (char) ('A' + part));
                 hbfList[1].add(p);
-                plattformList.add(p);
+                platformList.add(p);
             }
         }
         for (int i = 10; i < 14; ++i) {
-            Plattform p = new Plattform(Integer.toString(i + 1));
+            Platform p = new Platform(Integer.toString(i + 1));
             hbfList[2].add(p);
-            plattformList.add(p);
+            platformList.add(p);
         }
-        plattformList.add(new Plattform("stop"));
-        for (Set<Plattform> plattforms : hbfList){
-            plattforms.forEach(new Consumer<Plattform>() {
+        platformList.add(new Platform("stop"));
+        for (Set<Platform> platforms : hbfList){
+            platforms.forEach(new Consumer<Platform>() {
 
                 @Override
-                public void accept(Plattform plattform) {
-                    plattform.neighbours.addAll(plattforms);
-                    plattform.neighbours.remove(plattform);
+                public void accept(Platform platform) {
+                    platform.neighbours.addAll(platforms);
+                    platform.neighbours.remove(platform);
                 }
             });
         }
@@ -231,7 +231,7 @@ public class PluginTester {
                                             response = tester.facility.toXML();
                                             break;
                                         case "bahnsteigliste":
-                                            response = Plattform.toXML(tester.plattformList);
+                                            response = Platform.toXML(tester.platformList);
                                             break;
                                         case "zugliste":
                                             response = Train.toXmlList(tester.trains.entrySet());

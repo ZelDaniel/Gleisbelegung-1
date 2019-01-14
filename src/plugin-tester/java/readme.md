@@ -17,6 +17,7 @@ quit | Closes the socket and terminates the tester
 delay \<train id\> | Adjust the delay of a train
 trainlist | Sends the trainlist (\<zugliste\>)
 remove train \<train id\> | Removes a train
+replace platform | Allows to change a platform of a schedule of a train
 close | Closes the socket and resets the tester - the tester will be ready for a new connection 
  
 ##Simulated schedule

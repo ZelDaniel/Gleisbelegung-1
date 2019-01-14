@@ -107,14 +107,16 @@ class XmlInputHandlerThread extends Thread {
 
     private void handleSchedule(XML xml) throws IOException {
         Train t = getTrain(xml);
+        final Schedule schedule;
         if (t != null && t.getSchedule() == null) {
-            t.setSchedule(Schedule.parse(xml, t, trainlist, null));
+            schedule = Schedule.parse(xml, t, trainlist.toMap());
+            t.setSchedule(schedule);
             for (Event.EventType eventType : Event.EventType.values()) {
                 stsSocket.registerEvent(eventType, t);
             }
         } else {
-            // TODO
-            // t.updateSchedule
+            schedule = t.getSchedule();
+            schedule.updateByXml(xml);
         }
     }
 

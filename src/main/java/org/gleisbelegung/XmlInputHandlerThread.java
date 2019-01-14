@@ -196,7 +196,6 @@ class XmlInputHandlerThread extends Thread {
                         break;
                     case "ereignis":
                         handleEvent(readXml);
-                        System.out.println(readXml.toString());
                         break;
                 }
                 if (!complete && plattformsPresent && simtimePresent && facilityPresent) {

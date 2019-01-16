@@ -64,6 +64,7 @@ public class WindowController {
     }
 
     public void close() {
+        panelController.onClose();
         stage.close();
     }
 

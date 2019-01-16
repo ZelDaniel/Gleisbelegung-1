@@ -1,14 +1,12 @@
 package org.gleisbelegung.concurrent;
 
-import org.gleisbelegung.Plugin;
-
 /**
  * Executes a task each start of defined interval.
  */
 public class IntervalTaskThread extends Thread {
-    protected final IntervalTask task;
+    protected final IntervalTaskInterface task;
 
-    public IntervalTaskThread(String name, IntervalTask task) {
+    public IntervalTaskThread(String name, IntervalTaskInterface task) {
         this.task = task;
         setDaemon(true);
         setName(name);

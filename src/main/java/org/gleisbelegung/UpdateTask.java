@@ -1,6 +1,6 @@
 package org.gleisbelegung;
 
-import org.gleisbelegung.concurrent.IntervalTask;
+import org.gleisbelegung.concurrent.IntervalTaskInterface;
 import org.gleisbelegung.concurrent.IntervalTaskThread;
 import org.gleisbelegung.database.Database;
 import org.gleisbelegung.io.StsSocket;
@@ -9,7 +9,7 @@ import org.gleisbelegung.sts.Train;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-abstract class UpdateTask implements IntervalTask{
+abstract class UpdateTask implements IntervalTaskInterface {
 
     private static class TrainListUpdateTask extends UpdateTask {
 

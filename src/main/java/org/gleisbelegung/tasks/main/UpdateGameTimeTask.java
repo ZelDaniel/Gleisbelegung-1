@@ -11,20 +11,17 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 
-public class UpdateGameTimeTask implements IntervalTask {
+public class UpdateGameTimeTask extends IntervalTask {
 
     private final NodeWrapper<Label> gameTime;
 
     public UpdateGameTimeTask(NodeWrapper<Label> gameTime) {
+        super(true);
         this.gameTime = gameTime;
     }
 
     @Override public long getIntervalInMillis() {
         return TimeUnit.SECONDS.toMillis(1);
-    }
-
-    @Override public boolean continueExecution() {
-        return true;
     }
 
     @Override public void run() {

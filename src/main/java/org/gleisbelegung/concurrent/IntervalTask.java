@@ -1,12 +1,31 @@
 package org.gleisbelegung.concurrent;
 
-public interface IntervalTask extends Runnable {
+/**
+ * implemented to be able to stop the task in a situation which is not handled by the user
+ */
+public abstract class IntervalTask implements IntervalTaskInterface {
+    private boolean execute;
+
+    public IntervalTask(boolean execute){
+        this.execute = execute;
+    }
+
+    @Override public final boolean continueExecution() {
+        return execute;
+    }
 
     /**
-     *
-     * @return The desired time between to starts of this task in milliseconds
+     * i.e. called by the {@link org.gleisbelegung.ui.lib.panel.TaskPanel TaskPanel} when the corresponding window is closed
      */
-    long getIntervalInMillis();
+    public void stopExecution(){
+        execute = false;
+    }
 
-    boolean continueExecution();
+    /**
+     * not implemented at the moment because the threads end after the corresponding task is closed
+     */
+    /*public void startExecution(){
+        execute = true;
+    }
+    */
 }

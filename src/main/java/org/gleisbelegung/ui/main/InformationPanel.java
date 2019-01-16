@@ -1,25 +1,19 @@
 package org.gleisbelegung.ui.main;
 
-import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
-import org.gleisbelegung.database.Database;
+import org.gleisbelegung.tasks.main.UpdateGameTimeTask;
 import org.gleisbelegung.ui.lib.node.ButtonFactory;
 import org.gleisbelegung.ui.lib.node.LabelFactory;
-import org.gleisbelegung.ui.lib.panel.Panel;
-import org.gleisbelegung.ui.lib.panel.PanelInterface;
+import org.gleisbelegung.ui.lib.panel.TaskPanel;
 import org.gleisbelegung.ui.lib.style.NodeWrapper;
-
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 
 /**
  * Represents the Panel at the top of the {@link MainWindow}
  */
-public class InformationPanel extends Panel {
+public class InformationPanel extends TaskPanel {
 
     private NodeWrapper<Button> settings;
     private NodeWrapper<Button> restart;
@@ -39,30 +33,6 @@ public class InformationPanel extends Panel {
         pane = new NodeWrapper<>(new Pane(restart.getNode(), settings.getNode(),
                 changeView.getNode(), nextRefresh.getNode(),
                 gameTime.getNode()));
-
-        Runnable r = () -> {
-            while (!Thread.currentThread().isInterrupted()){
-                long taskStartTime = System.currentTimeMillis();
-
-                updateGameTime();
-
-                long taskEndTime = System.currentTimeMillis();
-                long sleepTime = taskEndTime - taskStartTime + TimeUnit.SECONDS.toMillis(1);
-                if (sleepTime > 0) {
-                    try {
-                        Thread.sleep(sleepTime);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-
-                }
-            }
-        };
-        Thread t = new Thread(r);
-        t.setDaemon(true);
-        t.setName("UI_UpdateSimTime");
-        t.start();
 
         return pane.getNode();
     }
@@ -106,15 +76,7 @@ public class InformationPanel extends Panel {
 
     }
 
-    private void updateGameTime(){
-        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        Database db = Database.getInstance();
-
-        String time = format.format(TimeUnit.SECONDS.toMillis(db.getSimTime()));
-        Platform.runLater(() -> {
-            gameTime.getNode().setText("Simzeit: " + time);
-        });
+    @Override public void createTasks() {
+        addTask("UI_UpdateGameTime", new UpdateGameTimeTask(gameTime));
     }
 }

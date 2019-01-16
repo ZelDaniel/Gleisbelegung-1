@@ -32,6 +32,12 @@ public class PanelController {
         panels.add(panel);
 
         Pane pane = panel.init();
+
+        if(panel instanceof TaskPanel){
+            TaskPanel taskPanel = (TaskPanel)panel;
+            taskPanel.createTasks();
+        }
+
         pane.setOnMouseClicked(e -> onMouseClicked(pane, panel, e));
         return pane;
     }
@@ -56,6 +62,19 @@ public class PanelController {
         loopAll(consumer);
     }
 
+    public void onClose(){
+        Consumer<PanelInterface> consumer = new Consumer<PanelInterface>() {
+
+            @Override public void accept(PanelInterface panel) {
+                if(panel instanceof TaskPanel){
+                    TaskPanel taskPanel = (TaskPanel)panel;
+                    taskPanel.stopAllTasks(true);
+                }
+            }
+        };
+        loopAll(consumer);
+    }
+
     /**
      * loops every {@link PanelInterface Panel} and ececute the consumer
      *
@@ -67,6 +86,12 @@ public class PanelController {
         }
     }
 
+    /**
+     * called if the panel is clicked in order to change the size
+     * @param pane
+     * @param panel
+     * @param e
+     */
     private void onMouseClicked(Pane pane, PanelInterface panel, MouseEvent e){
         if(e.getButton() == MouseButton.PRIMARY){
             pane.setPrefWidth(pane.getWidth() + 10);

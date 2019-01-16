@@ -1,0 +1,22 @@
+.text-field{
+    -fx-background-color: #505050;
+    -fx-text-fill: #fff;
+}
+
+.text-field:hover{
+    -fx-background-color: #606060;
+}
+
+.text-field:focused{
+    -fx-background-color: #707070;
+    -fx-highlight-fill: #505050;
+}
+
+.text-field:pressed{
+    -fx-background-color: #707070;
+}
+
+.text-field:disabled{
+    -fx-background-color: #606060;
+    -fx-text-fill: #CCC;
+}

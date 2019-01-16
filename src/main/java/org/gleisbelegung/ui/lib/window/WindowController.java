@@ -40,7 +40,6 @@ public class WindowController {
      */
     public void init(String title, double width, double height) {
         Scene scene = window.init();
-        scene.getStylesheets().add("ui/style.css");
 
         stage.setResizable(true);
         stage.setTitle(title);

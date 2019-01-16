@@ -55,8 +55,8 @@ public class MainPanel implements PanelInterface {
         close = ButtonFactory.create("Beenden", 16, runnableClose);
 
         NodeWrapper<Pane> pane = new NodeWrapper<>(new Pane(
-                connectionLabel.getNode(), connect.getNode(), close.getNode(),
-                host.getNode())
+                connectionLabel.getNode(), host.getNode(), close.getNode(), connect.getNode()
+                )
         );
         return pane.getNode();
     }

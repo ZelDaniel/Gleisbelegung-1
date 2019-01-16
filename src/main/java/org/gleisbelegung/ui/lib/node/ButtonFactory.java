@@ -19,7 +19,8 @@ public class ButtonFactory {
             Runnable onClick) {
         Button b = new Button(text);
         b.setFont(Font.font(fontSize));
-
+        b.getStylesheets().add("ui/nodes/button.css");
+        
         if (onClick != null) {
             b.setOnAction((e) -> onClick.run());
         }

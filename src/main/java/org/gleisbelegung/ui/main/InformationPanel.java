@@ -3,16 +3,17 @@ package org.gleisbelegung.ui.main;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import org.gleisbelegung.tasks.main.UpdateGameTimeTask;
 import org.gleisbelegung.ui.lib.node.ButtonFactory;
 import org.gleisbelegung.ui.lib.node.LabelFactory;
-import org.gleisbelegung.ui.lib.panel.PanelInterface;
+import org.gleisbelegung.ui.lib.panel.TaskPanel;
 import org.gleisbelegung.ui.lib.style.NodeWrapper;
 
 
 /**
  * Represents the Panel at the top of the {@link MainWindow}
  */
-public class InformationPanel implements PanelInterface {
+public class InformationPanel extends TaskPanel {
 
     private NodeWrapper<Button> settings;
     private NodeWrapper<Button> restart;
@@ -73,5 +74,9 @@ public class InformationPanel implements PanelInterface {
 
     @Override public void onVisible() {
 
+    }
+
+    @Override public void createTasks() {
+        addTask("UI_UpdateGameTime", new UpdateGameTimeTask(gameTime));
     }
 }

@@ -14,18 +14,20 @@ public class Details {
 		final String name = xml.get("name");
 		final String plan = xml.get("plangleis");
 		final String track = xml.get("gleis");
-		final Plattform plattform = Plattform.get(plan, track);
+		final Plattform plattformPlanned = Plattform.get(plan);
+		final Plattform plattform = Plattform.get(track);
 		final String target = xml.get("nach");
 		final String source = xml.get("von");
 		final int delay = Integer.parseInt(xml.get("verspaetung"));
 		final boolean atPlattform = Boolean.parseBoolean(xml.get("amgleis"));
 		final boolean visible = Boolean.parseBoolean(xml.get("sichtbar"));
-		return new Details(name, plattform, target, source, delay, atPlattform,
+		return new Details(name, plattformPlanned, plattform, target, source, delay, atPlattform,
 				visible);
 	}
 
 	final String name;
 	final Plattform plattform;
+	final Plattform plattformPlanned;
 	String target;
 	String source;
 	final int delay;
@@ -35,11 +37,12 @@ public class Details {
 
 	private boolean visible;
 
-	private Details(final String name, final Plattform plattform,
+	private Details(final String name, final Plattform plattformPlanned, final Plattform plattform,
 			final String target, final String source, final int delay,
 			final boolean atPlattform, final boolean visible) {
 		this.name = name;
 		this.plattform = plattform;
+		this.plattformPlanned = plattformPlanned;
 		this.target = target.isEmpty() ? null : target;
 		this.source = source.isEmpty() ? null : source;
 		this.atPlattform = atPlattform;
@@ -88,6 +91,10 @@ public class Details {
 		}
 		return true;
 		
+	}
+
+	public void setInvisible() {
+		visible = false;
 	}
 
 	public String to() {

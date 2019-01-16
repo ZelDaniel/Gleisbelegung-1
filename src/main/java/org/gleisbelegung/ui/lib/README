@@ -1,0 +1,7 @@
+Contains helper classes and interfaces for the ui
+
+Short description of the packages
+node - Contains Factory`s for often used nodes and set some initial things
+panel - panels represent a JavaFX Pane which can be part of a stage
+style - helper for applying styles to all JavaFX Elements which extends the JavaFX class Node
+window - windows represents javaFX stages, but with a bunch of useful helpers

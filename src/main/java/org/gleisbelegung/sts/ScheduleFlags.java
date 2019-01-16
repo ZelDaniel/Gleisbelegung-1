@@ -70,6 +70,9 @@ public class ScheduleFlags {
 	public ScheduleFlags(final String init, final Train train,
 			final Trainlist trains, final Set<Integer> missingIDs,
 			final Plattform plattform, int arr) {
+		if (init == null) {
+			return;
+		}
 		for (int i = 0; i < init.length(); ++i) {
 			switch (init.charAt(i)) {
 			case 'A':
@@ -140,8 +143,8 @@ public class ScheduleFlags {
 						for (final Iterator<ScheduleEntry> iter =
 								kSchedule.iterator(); iter.hasNext();) {
 							final ScheduleEntry kse = iter.next();
-							if (kse.getPlattform().getPlan()
-									.equals(plattform.getPlan())) {
+							if (kse.getPlattformPlanned()
+									.equals(plattform)) {
 								final int kDep = kse.getDepature();
 								if (kDep < arr) {
 									break;

@@ -39,20 +39,21 @@ public class WindowController {
      * @param height the initial and min height of the {@link WindowInterface window}
      */
     public void init(String title, double width, double height) {
+        Scene scene = window.init();
+        scene.getStylesheets().add("ui/style.css");
+
         stage.setResizable(true);
         stage.setTitle(title);
         stage.getIcons().add(new Image("icon.png"));
+
+        stage.setScene(scene);
+        stage.show();
 
         stage.setMinWidth(width);
         stage.setMinHeight(height);
         stage.setWidth(width);
         stage.setHeight(height);
-
-        Scene scene = window.init();
-        scene.getStylesheets().add("ui/style.css");
-
-        stage.setScene(scene);
-        stage.show();
+        stage.centerOnScreen();
 
         panelController.setSizes();
 
@@ -63,6 +64,7 @@ public class WindowController {
     }
 
     public void close() {
+        panelController.onClose();
         stage.close();
     }
 
@@ -81,10 +83,11 @@ public class WindowController {
         });
 
         stage.maximizedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal)
+            if (newVal){
                 window.onMaximize();
-            else
+            } else {
                 window.onMinimize();
+            }
         });
 
         stage.setOnCloseRequest((e) -> {

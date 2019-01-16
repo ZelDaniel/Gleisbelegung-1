@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.gleisbelegung.Plugin;
 import org.gleisbelegung.ui.lib.window.WindowController;
 import org.gleisbelegung.ui.lib.window.WindowInterface;
 import org.gleisbelegung.ui.main.InformationPanel;
@@ -16,6 +17,7 @@ import org.gleisbelegung.ui.lib.style.color.BackgroundColor;
 
 public class MainWindow implements WindowInterface {
 
+    private final Plugin plugin;
     private WindowController controller;
 
     private TablePanel table;
@@ -23,7 +25,8 @@ public class MainWindow implements WindowInterface {
     private TrainInformationPanel trainInformation;
     private StatusPanel status;
 
-    public MainWindow(Stage stage) {
+    public MainWindow(Stage stage, Plugin plugin) {
+        this.plugin = plugin;
         controller = new WindowController(this, stage);
         controller.init("Gleisbelegung", 1250, 700);
     }
@@ -66,6 +69,10 @@ public class MainWindow implements WindowInterface {
     }
 
     @Override public void onClose() {
+        plugin.closeConnection();
+    }
 
+    public void onFatalError(String message){
+        controller.close();
     }
 }

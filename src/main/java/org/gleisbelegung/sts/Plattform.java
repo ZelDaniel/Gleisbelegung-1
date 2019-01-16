@@ -1,88 +1,72 @@
 package org.gleisbelegung.sts;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.gleisbelegung.xml.XML;
-import org.gleisbelegung.collection.DoubleKeyMap;
 
 public class Plattform {
 
 	public static final Plattform EMPTY = new Plattform();
 
-	private static final DoubleKeyMap<String, Plattform> generatorMap = new DoubleKeyMap<>();
+	private static final Map<String, Plattform> generatorMap = new HashMap<>();
 
-	private static final String NULL = "N/A";
+	private final Set<Plattform> neighbours = new HashSet<>();
 
-	public static Plattform get(final String planned, final String plattform) {
-		if ((planned != null) && planned.isEmpty()) {
-			return Plattform.get(null, plattform);
-		}
-		if (plattform == null) {
-		}
-		if ((plattform == null) || plattform.isEmpty()) {
-			if (planned != null) {
-				return Plattform.get(planned, Plattform.NULL);
-			}
-			return Plattform.EMPTY;
-		}
-		final Plattform pf = Plattform.generatorMap.get(planned, plattform);
+	public static Plattform get(final String name) {
+		final Plattform pf = Plattform.generatorMap.get(name);
 		if (pf != null) {
 			return pf;
 		}
-		return new Plattform(planned, plattform);
+		return new Plattform(name);
 	}
 
-	private final String plan;
+	public static Plattform parse(XML xml) {
+		Plattform generated = get(xml.get("name"));
+		boolean complete = true;
+		for (XML neighbour : xml.getInternXML()) {
+			if (neighbour.getKey().equals("n")) {
+				Plattform neighbourParsed = generatorMap.get(neighbour.get("name"));
+				if (neighbourParsed == null) {
+					complete = false;
+					break;
+				}
+				generated.neighbours.add(neighbourParsed);
+			}
+		}
+		if (complete) {
+			for (Plattform p : generated.neighbours) {
+				p.synchronizeNeighbours(generated);
+			}
+		}
+
+		return generated;
+	}
+
+	private final String name;
 
 	private Plattform() {
-		this.plan = null;
+		this.name = null;
 	}
 
-	public Plattform(final String planned, final String plattform) {
-		Plattform.generatorMap.put(planned, plattform, this);
-		this.plan = planned;
-	}
-
-	public boolean equals(final Plattform o) {
-		if (this == o)
-			return true;
-		if (o == null)
-			return false;
-		return this.plan.equals(o.plan);
-	}
-	
-	@Override
-	public int hashCode() {
-		return this.plan.hashCode();
-		
-	}
-
-	public String getPlan() {
-		if (this == EMPTY) {
-			return "";
-		}
-		return this.plan;
+	private Plattform(final String name) {
+		Plattform.generatorMap.put(name, this);
+		this.name = name;
 	}
 
 	@Override
 	public String toString() {
-		return this.plan;
+		return this.name;
 	}
 
-	public static PlattformNeighbour getAllNeighbours(final XML xml) {
-		if (!xml.getKey().equals("bahnsteig"))
-			return null;
-		final Set<Plattform> plattforms = new HashSet<>();
-		final String name = xml.get("name");
-		
-		for (final XML pf : xml.getInternXML()) {
-			plattforms.add(get(pf.get("name")));
-		}
-		return new PlattformNeighbour(get(name), plattforms);
+	public Set<Plattform> getNeighbours()
+	{
+		return new HashSet<>(this.neighbours);
 	}
 
-	private static Plattform get(final String name) {
-		return get(name, name);
+	private void synchronizeNeighbours(Plattform plattform) {
+		this.neighbours.clear();
+		this.neighbours.addAll(plattform.getNeighbours());
+		this.neighbours.remove(this);
+		this.neighbours.add(plattform);
 	}
 }

@@ -94,9 +94,6 @@ public class Database implements StSDataInterface {
     @Threadsafe
     @Override
     public List<Train> getTrainList() {
-        if (trainList != null) {
-            return trainList.toList();
-        }
         synchronized (Trainlist.class) {
             while(trainList == null) {
                 try {

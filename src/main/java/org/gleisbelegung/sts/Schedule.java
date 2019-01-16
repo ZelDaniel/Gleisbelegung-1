@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.gleisbelegung.database.Database;
 import org.gleisbelegung.xml.XML;
 
 /**
@@ -35,6 +36,9 @@ public class Schedule implements Iterable<ScheduleEntry> {
                 ScheduleEntry.parse(entriesXML, train, trains);
         final List<ScheduleEntry> entries = result.entries;
         final Schedule schedule = new Schedule(entries, train);
+
+        Database.getInstance().registerSchedule(schedule);
+
         return schedule;
     }
 

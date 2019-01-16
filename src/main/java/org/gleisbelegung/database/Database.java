@@ -3,12 +3,18 @@ package org.gleisbelegung.database;
 import org.gleisbelegung.annotations.Threadsafe;
 import org.gleisbelegung.sts.Facility;
 import org.gleisbelegung.sts.Plattform;
+import org.gleisbelegung.sts.Schedule;
 import org.gleisbelegung.sts.Train;
 import org.gleisbelegung.sts.Trainlist;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class Database implements StSDataInterface {
@@ -35,6 +41,7 @@ public class Database implements StSDataInterface {
     private Facility facility = null;
     private Trainlist trainList;
     private List<Plattform> plattformList = new LinkedList<>();
+    private Set<WeakReference<Schedule>> schedules = new HashSet<>();
 
     private Database() {
 
@@ -67,6 +74,48 @@ public class Database implements StSDataInterface {
 
     public void registerPlattform(Plattform plattform) {
         plattformList.add(plattform);
+    }
+
+    @Threadsafe
+    public void registerSchedule(Schedule schedule) {
+        synchronized (schedules) {
+            schedules.add(new WeakReference<>(schedule));
+        }
+    }
+
+    @Threadsafe
+    public Iterator<Schedule> getScheduleIterator() {
+        final Set<WeakReference<Schedule>> schedules;
+        synchronized (this.schedules) {
+            schedules = new HashSet<>(this.schedules);
+        }
+
+        return new Iterator<Schedule>() {
+
+            private Schedule next;
+            private Iterator<WeakReference<Schedule>> iter = schedules.iterator();
+
+            @Override
+            public boolean hasNext() {
+                while (iter.hasNext()) {
+                    WeakReference<Schedule> nextWeakCandidate = iter.next();
+                    Schedule nextCandidate = nextWeakCandidate.get();
+                    if (!nextWeakCandidate.isEnqueued() && nextCandidate != null) {
+                        next = nextCandidate;
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public Schedule next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return next;
+            }
+        };
     }
 
     public Facility getFacility() {

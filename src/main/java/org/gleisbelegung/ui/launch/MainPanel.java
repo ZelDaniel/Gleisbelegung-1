@@ -49,10 +49,10 @@ public class MainPanel implements PanelInterface {
             connect.getNode().setDisable(true);
             plugin.tryConnection(hostAddress);
         };
-        connect = ButtonFactory.create("Verbinden", 16, runnableConnect);
+        connect = ButtonFactory.create("Verbinden", 16, runnableConnect, true);
 
         Runnable runnableClose = Platform::exit;
-        close = ButtonFactory.create("Beenden", 16, runnableClose);
+        close = ButtonFactory.create("Beenden", 16, runnableClose, true);
 
         NodeWrapper<Pane> pane = new NodeWrapper<>(new Pane(
                 connectionLabel.getNode(), host.getNode(), close.getNode(), connect.getNode()

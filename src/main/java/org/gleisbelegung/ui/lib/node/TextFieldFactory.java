@@ -22,6 +22,7 @@ public class TextFieldFactory {
 
         tf.setFont(Font.font(fontSize));
         tf.setPromptText(hint);
+        tf.getStylesheets().add("ui/nodes/text-field.css");
 
         if (onTextChange != null) {
             tf.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -30,8 +31,6 @@ public class TextFieldFactory {
         }
 
         NodeWrapper<TextField> nodeWrapper = new NodeWrapper<>(tf);
-        nodeWrapper.addStyle(new TextColor("#fff"));
-        nodeWrapper.addStyle(new BackgroundColor("#505050"));
 
         return nodeWrapper;
     }

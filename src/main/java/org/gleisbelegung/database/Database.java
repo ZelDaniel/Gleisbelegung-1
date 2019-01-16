@@ -103,6 +103,8 @@ public class Database implements StSDataInterface {
                     if (!nextWeakCandidate.isEnqueued() && nextCandidate != null) {
                         next = nextCandidate;
                         return true;
+                    } else {
+                        iter.remove();
                     }
                 }
                 return false;

@@ -188,4 +188,8 @@ public class Schedule implements Iterable<ScheduleEntry> {
     public void updateByXml(XML xml) {
         ScheduleEntry.updateWithExisting(xml.getInternXML(), train, this);
     }
+
+    public Train getTrain() {
+        return train;
+    }
 }

@@ -28,7 +28,7 @@ public class NodeWrapper<T extends Node> {
     /**
      * add and apply's the given style to the {@link Node} <br>
      * eventually replaces other styles {@link NodeWrapper#removeIfExisting(StyleInterface)}
-     * @param style
+     * @param style style to be added to the node
      */
     public void addStyle(StyleInterface style) {
         removeIfExisting(style);
@@ -38,7 +38,7 @@ public class NodeWrapper<T extends Node> {
 
     /**
      * add multiple styles to the given node. See {@link NodeWrapper#addStyle(StyleInterface)}
-     * @param styles
+     * @param styles multiple styles to be added to the node at the same time
      */
     public void addStyles(StyleInterface... styles) {
         for (StyleInterface style : styles) {
@@ -48,7 +48,7 @@ public class NodeWrapper<T extends Node> {
 
     /**
      * removes a style from the given {@link Node}
-     * @param style
+     * @param style a style to be removed from the node
      */
     public void removeStyle(StyleInterface style) {
         styles.remove(style);

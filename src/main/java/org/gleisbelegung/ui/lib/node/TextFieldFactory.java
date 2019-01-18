@@ -12,9 +12,11 @@ public class TextFieldFactory {
     /**
      * Helper for creating Labels
      *
-     * @param text
-     * @param fontSize
-     * @return intitialized and style JavaFX Label
+     * @param text the text of the label
+     * @param hint the text to be displayed on mouse hover
+     * @param fontSize font size in px
+     * @param onTextChange runnable executed when the text changes
+     * @return initialized and style JavaFX Label
      */
     public static NodeWrapper<TextField> create(String text, String hint,
             int fontSize, Runnable onTextChange) {
@@ -35,6 +37,13 @@ public class TextFieldFactory {
         return nodeWrapper;
     }
 
+    /**
+     *
+     * @param text the text of the label
+     * @param hint hint the text to be displayed on mouse hover
+     * @param fontSize fontSize font size in px
+     * @return initialized and style JavaFX Label
+     */
     public static NodeWrapper<TextField> create(String text, String hint,
             int fontSize) {
         return create(text, hint, fontSize, null);

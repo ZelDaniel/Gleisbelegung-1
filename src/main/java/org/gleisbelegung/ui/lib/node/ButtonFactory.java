@@ -12,10 +12,11 @@ public class ButtonFactory {
     /**
      * Helper for creating a JavaFX Button
      *
-     * @param text
-     * @param fontSize
-     * @param onClick
-     * @return itialized and styled JavaFX Button
+     * @param text the text of the button
+     * @param fontSize font size in px
+     * @param onClick runnable executed when the user clicks the button
+     * @param executeRunnableOnEnter true to execute the runnable if the button is focused and the users presses enter
+     * @return initialized and styled JavaFX Button
      */
     public static NodeWrapper<Button> create(String text, int fontSize,
             Runnable onClick, boolean executeRunnableOnEnter) {
@@ -42,9 +43,9 @@ public class ButtonFactory {
     /**
      * {@link ButtonFactory#create(String, int, Runnable, boolean)}
      *
-     * @param text
-     * @param fontSize
-     * @return
+     * @param text the text of the button
+     * @param fontSize font size in px
+     * @return initialized and styled JavaFX Button
      */
     public static NodeWrapper<Button> create(String text, int fontSize) {
         return create(text, fontSize, null, false);

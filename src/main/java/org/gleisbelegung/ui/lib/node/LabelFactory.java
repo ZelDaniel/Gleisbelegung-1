@@ -13,9 +13,9 @@ public class LabelFactory {
     /**
      * Helper for creating Labels
      *
-     * @param text
-     * @param fontSize
-     * @return intitialized and style JavaFX Label
+     * @param text the text of the label
+     * @param fontSize font size in px
+     * @return initialized and style JavaFX Label
      */
     public static NodeWrapper<Label> create(String text, int fontSize) {
         Label l = new Label(text);
@@ -30,10 +30,10 @@ public class LabelFactory {
 
     /**
      * Helper for creating Labels with spacing
-     * @param text
-     * @param fontSize
-     * @param width
-     * @param alignment
+     * @param text the text of the label
+     * @param fontSize font size in px
+     * @param width desired with of the label
+     * @param alignment alignment of the text
      * @return initialized and style JavaFX Label
      */
     public static NodeWrapper<Label> create(String text, int fontSize, int width, Pos alignment) {

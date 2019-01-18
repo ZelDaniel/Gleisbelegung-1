@@ -1,31 +1,32 @@
 package org.gleisbelegung.sts;
 
+import org.gleisbelegung.database.StsTrainDetailsInterface;
 import org.gleisbelegung.xml.XML;
 
 /**
  * Represents the information of zugdetails
  */
-public class Details {
+public class Details implements StsTrainDetailsInterface {
 
-    final String name;
-    final Plattform plattform;
-    final Plattform plattformPlanned;
-    final int delay;
-    String target;
-    String source;
-    boolean atPlattform;
+    private final String name;
+    private final Platform platform;
+    private final Platform platformPlanned;
+    private final int delay;
+    private String target;
+    private String source;
+    private boolean atPlatform;
     private long updated_at = System.currentTimeMillis();
     private boolean visible;
 
-    private Details(final String name, final Plattform plattformPlanned, final Plattform plattform,
+    private Details(final String name, final Platform platformPlanned, final Platform platform,
             final String target, final String source, final int delay,
-            final boolean atPlattform, final boolean visible) {
+            final boolean atPlatform, final boolean visible) {
         this.name = name;
-        this.plattform = plattform;
-        this.plattformPlanned = plattformPlanned;
+        this.platform = platform;
+        this.platformPlanned = platformPlanned;
         this.target = target.isEmpty() ? null : target;
         this.source = source.isEmpty() ? null : source;
-        this.atPlattform = atPlattform;
+        this.atPlatform = atPlatform;
         this.delay = delay;
         this.visible = visible;
     }
@@ -37,19 +38,19 @@ public class Details {
         final String name = xml.get("name");
         final String plan = xml.get("plangleis");
         final String track = xml.get("gleis");
-        final Plattform plattformPlanned = Plattform.get(plan);
-        final Plattform plattform = Plattform.get(track);
+        final Platform platformPlanned = Platform.get(plan);
+        final Platform platform = Platform.get(track);
         final String target = xml.get("nach");
         final String source = xml.get("von");
         final int delay = Integer.parseInt(xml.get("verspaetung"));
-        final boolean atPlattform = Boolean.parseBoolean(xml.get("amgleis"));
+        final boolean atPlatform = Boolean.parseBoolean(xml.get("amgleis"));
         final boolean visible = Boolean.parseBoolean(xml.get("sichtbar"));
-        return new Details(name, plattformPlanned, plattform, target, source, delay, atPlattform,
+        return new Details(name, platformPlanned, platform, target, source, delay, atPlatform,
                 visible);
     }
 
-    public boolean isAtPlattform() {
-        return this.atPlattform;
+    public boolean isAtPlatform() {
+        return this.atPlatform;
     }
 
     public String from() {
@@ -60,8 +61,16 @@ public class Details {
         return this.delay;
     }
 
-    public Plattform getPlattform() {
-        return this.plattform;
+    public String formatDelay() {
+        return String.format(
+                "%s %3d", this.delay <= 0
+                        ? this.delay == 0 ? " " : "-" : "+",
+                Math.abs(this.delay));
+    }
+
+    @Override
+    public Platform getPlatform() {
+        return this.platform;
     }
 
     public void setVisible() {
@@ -70,30 +79,27 @@ public class Details {
     }
 
     public boolean equals(final Details o) {
-        if (this.atPlattform ^ o.atPlattform || this.visible ^ o.visible) {
+        if (this.atPlatform ^ o.atPlatform || this.visible ^ o.visible) {
             return false;
         }
-        if (source == null ^ o.source == null) {
+        if (this.source == null ^ o.source == null) {
             return false;
         }
-        if (target == null ^ o.target == null) {
+        if (this.target == null ^ o.target == null) {
             return false;
         }
-        if (source != null && !source.equals(o.source) || target != null && !target.equals(o.target)) {
+        if (this.source != null && !this.source.equals(o.source) || this.target != null && !this.target.equals(o.target)) {
             return false;
         }
-        if (plattform != o.plattform || delay != o.delay) {
+        if (this.platform != o.platform || this.delay != o.delay) {
             return false;
         }
-        if (!name.equals(o.name)) {
-            return false;
-        }
-        return true;
+        return this.name.equals(o.name);
 
     }
 
     public void setInvisible() {
-        visible = false;
+        this.visible = false;
     }
 
     public String to() {
@@ -104,14 +110,34 @@ public class Details {
     public String toString() {
         return this.name + " " + this.source + " -> " + this.target + " "
                 + this.delay + " "
-                + (!this.visible ? " X" : (this.atPlattform ? " -" : ""));
+                + (!this.visible ? " X" : (this.atPlatform ? " -" : ""));
     }
 
     public boolean isVisible() {
         return this.visible;
     }
 
-    public void setSource(final String source) {
-        this.source = source;
+    void copySource(Details details) {
+        this.source = details.source;
+    }
+
+    void invalidateSource() {
+        this.source = null;
+    }
+
+    void invalidateTarget() {
+        this.target = null;
+    }
+
+    boolean isSourceValid() {
+        return source != null;
+    }
+
+    boolean isTargetValid() {
+        return target != null;
+    }
+
+    void toggleAtPlatform() {
+        this.atPlatform = !this.atPlatform;
     }
 }

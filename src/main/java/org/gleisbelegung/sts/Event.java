@@ -1,8 +1,7 @@
 package org.gleisbelegung.sts;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.gleisbelegung.database.StsTrainDetailsInterface;
+import org.gleisbelegung.database.StsTrainInterface;
 import org.gleisbelegung.xml.XML;
 
 
@@ -12,25 +11,25 @@ import org.gleisbelegung.xml.XML;
 public class Event {
 
     private final EventType type;
-    private final Train train;
+    private final StsTrainInterface train;
     private final long time;
-    private final Details details;
+    private final StsTrainDetailsInterface details;
 
-    Event(final EventType type, final Train train, final Details details) {
+    Event(final EventType type, final StsTrainInterface train, final Details details) {
         this.type = type;
         this.train = train;
         this.details = details;
         this.time = 0;
     }
 
-    Event(final EventType type, final Train train, final long time) {
+    Event(final EventType type, final StsTrainInterface train, final long time) {
         this.type = type;
         this.train = train;
         this.time = time;
         this.details = train.getDetails();
     }
 
-    private Event(Event event, Plattform plattform) {
+    private Event(final Event event, final Platform platform) {
         this.type = event.type;
         this.train = event.train;
         this.time = event.time;
@@ -42,7 +41,7 @@ public class Event {
      * @param train Train for which given event has been generated
      * @return Event describing new state of given train
      */
-    public static Event parse(final XML xml, final Train train) {
+    public static Event parse(final XML xml, final StsTrainInterface train) {
         if (!xml.getKey().equals("ereignis")) {
             throw new IllegalArgumentException();
         }
@@ -67,12 +66,8 @@ public class Event {
         return type.createEvent(train, details);
     }
 
-    public Details getDetails() {
+    public StsTrainDetailsInterface getDetails() {
         return this.details;
-    }
-
-    Plattform getPlattform() {
-        return this.details.plattform;
     }
 
     public long getTime() {
@@ -122,11 +117,8 @@ public class Event {
             this.key = key;
         }
 
-        public Event createEvent(final Train train) {
-            return new Event(this, train, System.currentTimeMillis());
-        }
 
-        Event createEvent(final Train train, final Details details) {
+        Event createEvent(final StsTrainInterface train, final Details details) {
             return new Event(this, train, details);
         }
 

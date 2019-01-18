@@ -8,13 +8,13 @@ public class Facility {
     private final int simbuild;
     private final int aid;
 
-    private Facility(final String name, int simbuild, int aid) {
+    private Facility(final String name, final int simbuild, final int aid) {
         this.name = name;
         this.simbuild = simbuild;
         this.aid = aid;
     }
 
-    public static Facility parse(XML xml) {
+    public static Facility parse(final XML xml) {
         return new Facility(xml.get("name"), Integer.parseInt(xml.get("simbuild")), Integer.parseInt(xml.get("aid")));
     }
 

@@ -3,6 +3,7 @@ package org.gleisbelegung;
 import org.gleisbelegung.concurrent.IntervalTaskInterface;
 import org.gleisbelegung.concurrent.IntervalTaskThread;
 import org.gleisbelegung.database.Database;
+import org.gleisbelegung.database.StsTrainInterface;
 import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.sts.Train;
 
@@ -44,7 +45,7 @@ abstract class UpdateTask implements IntervalTaskInterface {
               return;
           }
           try {
-              for (Train train : Database.getInstance().getTrainList()) {
+              for (StsTrainInterface train : Database.getInstance().getTrainList()) {
                   socket.requestSchedule(train);
               }
           } catch (IOException e) {
@@ -88,7 +89,7 @@ abstract class UpdateTask implements IntervalTaskInterface {
         @Override
         public void run() {
             try {
-                for (Train t : Database.getInstance().getTrainList()) {
+                for (StsTrainInterface t : Database.getInstance().getTrainList()) {
                     socket.requestDetails(t);
                 }
             } catch (IOException e) {

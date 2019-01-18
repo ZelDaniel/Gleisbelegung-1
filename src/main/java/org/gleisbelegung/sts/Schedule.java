@@ -1,12 +1,14 @@
 package org.gleisbelegung.sts;
 
+import org.gleisbelegung.database.Database;
+import org.gleisbelegung.database.StsScheduleInterface;
+import org.gleisbelegung.database.StsTrainInterface;
+import org.gleisbelegung.xml.XML;
+
+import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.gleisbelegung.database.Database;
-import org.gleisbelegung.xml.XML;
 
 /**
  * Represents zugfahrplan.
@@ -14,19 +16,19 @@ import org.gleisbelegung.xml.XML;
  * After parsing the schedule the first time, the instance will be kept and the internal pointer moved to indicate the
  * current position.
  */
-public class Schedule implements Iterable<ScheduleEntry> {
+public class Schedule implements StsScheduleInterface {
 
     private final List<ScheduleEntry> entries;
-    private final Train train;
+    private final WeakReference<StsTrainInterface> train;
     private int pos = 0;
 
-    private Schedule(final List<ScheduleEntry> entries, final Train train) {
+    private Schedule(final List<ScheduleEntry> entries, final StsTrainInterface train) {
         this.entries = entries;
-        this.train = train;
+        this.train = new WeakReference<>(train);
     }
 
-    public static Schedule parse(final XML xml, final Train train,
-            final Map<Integer, Train> trains
+    public static Schedule parse(final XML xml, final StsTrainInterface train,
+            final Map<Integer, ? extends StsTrainInterface> trains
     ) {
         if (!xml.getKey().equals("zugfahrplan")) {
             throw new IllegalArgumentException();
@@ -82,7 +84,7 @@ public class Schedule implements Iterable<ScheduleEntry> {
         }
         for (int i = this.pos; i < this.entries.size(); ++i) {
             final ScheduleEntry se = this.entries.get(i);
-            if (se.getFlags().getL()) {
+            if (se.getFlags().hasL()) {
                 return se;
             }
         }
@@ -100,7 +102,7 @@ public class Schedule implements Iterable<ScheduleEntry> {
         }
         for (int i = this.pos; i < this.entries.size(); ++i) {
             final ScheduleEntry se = this.entries.get(i);
-            if (se.getFlags().getW()) {
+            if (se.getFlags().hasW()) {
                 return se;
             }
         }
@@ -134,18 +136,18 @@ public class Schedule implements Iterable<ScheduleEntry> {
      */
     public void setPos(final Details details) {
         for (int i = 0; i < this.entries.size(); ++i) {
-            if (this.entries.get(i).getPlattform() == details.plattform) {
+            if (this.entries.get(i).getPlatform() == details.getPlatform()) {
                 this.pos = i;
                 return;
             }
         }
-        assert details.plattform == Plattform.EMPTY;
+        assert details.getPlatform() == Platform.EMPTY;
         this.pos = -1;
     }
 
-    public boolean updatePos(final Plattform pl) {
+    public boolean updatePos(final Platform pl) {
         for (int i = this.pos; i >= 0 && i < this.entries.size(); ++i) {
-            if (this.entries.get(i).getPlattform().equals(pl)) {
+            if (this.entries.get(i).getPlatform().equals(pl)) {
                 if (this.pos == i) {
                     return false;
                 }
@@ -154,7 +156,7 @@ public class Schedule implements Iterable<ScheduleEntry> {
             }
         }
         for (int i = this.entries.size(); --i >= 0; ) {
-            if (this.entries.get(i).getPlattform().equals(pl)) {
+            if (this.entries.get(i).getPlatform().equals(pl)) {
                 this.pos = i;
                 return true;
             }
@@ -185,11 +187,11 @@ public class Schedule implements Iterable<ScheduleEntry> {
         return this.entries.get(0);
     }
 
-    public void updateByXml(XML xml) {
-        ScheduleEntry.updateWithExisting(xml.getInternXML(), train, this);
+    public void updateByXml(final XML xml) {
+        ScheduleEntry.updateWithExisting(xml.getInternXML(), this.train.get(), this.entries);
     }
 
-    public Train getTrain() {
-        return train;
+    public StsTrainInterface getTrain() {
+        return this.train.get();
     }
 }

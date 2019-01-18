@@ -3,6 +3,7 @@ package org.gleisbelegung.io;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.gleisbelegung.database.StsTrainInterface;
 import org.gleisbelegung.sts.Event;
 import org.gleisbelegung.sts.Train;
 import org.gleisbelegung.xml.XML;
@@ -38,19 +39,19 @@ public class StsSocket extends XmlSocket {
         write(trainListXML);
     }
 
-    public void requestDetails(Train train) throws IOException {
-        write(detailsXml.set("zid", train.getID().toString()));
+    public void requestDetails(StsTrainInterface train) throws IOException {
+        write(detailsXml.set("zid", train.getId().toString()));
     }
 
-    public void requestSchedule(Train train) throws IOException {
-        write(scheduleXml.set("zid", train.getID().toString()));
+    public void requestSchedule(StsTrainInterface train) throws IOException {
+        write(scheduleXml.set("zid", train.getId().toString()));
     }
 
-    public void registerEvent(Event.EventType eventType, Train train) throws IOException {
+    public void registerEvent(Event.EventType eventType, StsTrainInterface train) throws IOException {
         if (eventType.getKey() != null
-            && (train.getID() >= 0 || eventType == Event.EventType.EXIT)
+            && (train.getId() >= 0 || eventType == Event.EventType.EXIT)
         ) {
-            write(eventXml.set("art", eventType.getKey()).set("zid", train.getID().toString()));
+            write(eventXml.set("art", eventType.getKey()).set("zid", train.getId().toString()));
         }
     }
 }

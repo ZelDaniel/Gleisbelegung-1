@@ -1,11 +1,12 @@
 package org.gleisbelegung;
 
 import org.gleisbelegung.database.Database;
+import org.gleisbelegung.database.StsTrainInterface;
 import org.gleisbelegung.io.StsSocket;
 import org.gleisbelegung.sts.Details;
 import org.gleisbelegung.sts.Event;
 import org.gleisbelegung.sts.Facility;
-import org.gleisbelegung.sts.Plattform;
+import org.gleisbelegung.sts.Platform;
 import org.gleisbelegung.sts.Schedule;
 import org.gleisbelegung.sts.Train;
 import org.gleisbelegung.sts.Trainlist;
@@ -88,7 +89,7 @@ class XmlInputHandlerThread extends Thread {
 
     private void handlePlattformList(XML xml) {
         for(XML xmlEntry : xml.getInternXML()) {
-            Database.getInstance().registerPlattform(Plattform.parse(xmlEntry));
+            Database.getInstance().registerPlatform(Platform.parse(xmlEntry));
         }
         this.plattformsPresent = true;
     }
@@ -127,7 +128,7 @@ class XmlInputHandlerThread extends Thread {
             trainlist = new Trainlist();
         }
         trainlist.update(xml);
-        for (Train train : trainlist.toList()) {
+        for (StsTrainInterface train : trainlist.toList()) {
             if (train.getDetails() == null) {
                 stsSocket.requestDetails(train);
             }

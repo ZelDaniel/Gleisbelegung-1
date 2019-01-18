@@ -1,13 +1,14 @@
 package org.gleisbelegung.sts;
 
+import org.gleisbelegung.annotations.Threadsafe;
+import org.gleisbelegung.database.StsTrainInterface;
+import org.gleisbelegung.xml.XML;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.gleisbelegung.annotations.Threadsafe;
-import org.gleisbelegung.xml.XML;
 
 /**
  * Represenation of zugliste
@@ -35,13 +36,20 @@ public class Trainlist implements Iterable<Train> {
     @Threadsafe
     public Train get(final String id) {
         final Integer zid = Integer.valueOf(id);
-        return get(zid);
+        return this.get(zid);
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Returns a iterator backed up by underlying instance.
      *
-     * @see java.lang.Iterable#iterator()
+     * <ul>
+     * <li> This method is NOT threadsafe.</li>
+     *
+     * <li> The returned iterator is backed up by underlying list
+     * => ConcurrentModificationException might be thrown.</li>
+     * </ul>
+     *
+     * Use {@link #toList()} to get a thread safe iterator.
      */
     @Override
     public Iterator<Train> iterator() {
@@ -57,6 +65,9 @@ public class Trainlist implements Iterable<Train> {
     @Threadsafe
     public synchronized void remove(final Integer id) {
         final Train old = this.idMap.remove(id);
+        if (old != null) {
+            remove(id, old);
+        }
     }
 
     private void remove(final Integer id, final Train old) {
@@ -65,19 +76,19 @@ public class Trainlist implements Iterable<Train> {
 
     @Threadsafe
     public void remove(final Train train) {
-        remove(train.getID());
+        this.remove(train.getId());
     }
 
     @Threadsafe
-    public synchronized List<Train> toList() {
-        final List<Train> l = new ArrayList<>(this.idMap.size());
+    public synchronized List<? extends StsTrainInterface> toList() {
+        final List<StsTrainInterface> l = new ArrayList<>(this.idMap.size());
         l.addAll(this.idMap.values());
         return l;
     }
 
     @Threadsafe
     public synchronized Map<Integer, Train> toMap() {
-        return new HashMap<>(idMap);
+        return new HashMap<>(this.idMap);
     }
 
     /*
@@ -121,10 +132,10 @@ public class Trainlist implements Iterable<Train> {
          * step 2: remove all train which are not part of new list
          */
         for (final Iterator<Integer> ids = oldMap.keySet().iterator(); ids.hasNext(); ) {
-            Integer id = ids.next();
-            Train removedTrain = oldMap.get(id);
+            final Integer id = ids.next();
+            final Train removedTrain = oldMap.get(id);
             ids.remove();
-            remove(id, removedTrain);
+            this.remove(id, removedTrain);
             if (id.intValue() < 0) {
                 this.history.remove(id);
             }

@@ -1,6 +1,8 @@
 package org.gleisbelegung.sts;
 
-import org.gleisbelegung.database.StSDataInterface;
+import org.gleisbelegung.database.StsPlatformInterface;
+import org.gleisbelegung.database.StsTrainDetailsInterface;
+import org.gleisbelegung.database.StsTrainInterface;
 import org.gleisbelegung.xml.XML;
 
 import java.util.regex.Matcher;
@@ -12,8 +14,9 @@ import java.util.regex.Pattern;
  * Every train is referred by an unique ID. Methods calling the constructor have
  * to ensure that same ID results in the same train object.
  */
-public class Train implements Comparable<Train> {
+public class Train implements Comparable<Train>, StsTrainInterface {
 
+    private static final Pattern trainNamePattern = Pattern.compile("^([^0-9]*)( )?([0-9]+)");
     private final Integer id;
     private final String name;
     private final TrainType name_traintype;
@@ -22,13 +25,9 @@ public class Train implements Comparable<Train> {
     private Details details;
     private Train succ;
     private Train pred;
-    private Plattform lastArrived;
+    private StsPlatformInterface lastArrived;
 
-    private Event registeredEvent;
-
-    private static final Pattern trainNamePattern = Pattern.compile("^([^0-9]*)( )?([0-9]*)");
-
-    private Train(final Integer id, final String name) {
+    protected Train(final Integer id, final String name) {
         this.id = id;
         this.name = name;
         final Matcher matcher = trainNamePattern.matcher(name);
@@ -54,9 +53,9 @@ public class Train implements Comparable<Train> {
     @Override
     public int compareTo(final Train o) {
         final int cmp;
-        int cmpType = this.name_traintype.compareTo(o.name_traintype);
+        final int cmpType = this.name_traintype.compareTo(o.name_traintype);
         if (o.name_traintype == this.name_traintype || cmpType == 0) {
-            int cmpId = this.name_trainid - o.name_trainid;
+            final int cmpId = this.name_trainid - o.name_trainid;
             if (cmpId == 0) {
                 cmp = this.id.intValue() - o.id.intValue();
             } else {
@@ -69,12 +68,10 @@ public class Train implements Comparable<Train> {
     }
 
     public String formatDelay() {
-        return String.format(
-                "%s %3d", this.details.delay <= 0
-                        ? this.details.delay == 0 ? " " : "-" : "+",
-                Math.abs(this.details.delay));
+       return this.details.formatDelay();
     }
 
+    @Override
     public Details getDetails() {
         return this.details;
     }
@@ -82,7 +79,8 @@ public class Train implements Comparable<Train> {
     /**
      * @return the ID of this train
      */
-    public Integer getID() {
+    @Override
+    public Integer getId() {
         return this.id;
     }
 
@@ -94,6 +92,7 @@ public class Train implements Comparable<Train> {
         return this.name_trainid;
     }
 
+    @Override
     public Schedule getSchedule() {
         return this.schedule;
     }
@@ -104,6 +103,21 @@ public class Train implements Comparable<Train> {
 
     public Train getSuccessor() {
         return this.succ;
+    }
+
+    // E-/ K-flag
+    void setSuccessor(final Train t) {
+        if (this.details != null) {
+            this.details.invalidateTarget();
+        }
+        this.succ = t;
+    }
+
+    @Override
+    public <T extends StsTrainInterface> void setSuccessor(final T successor) {
+        if (Train.class.isAssignableFrom(successor.getClass())) {
+            this.setSuccessor((Train) successor);
+        }
     }
 
     public TrainType getType() {
@@ -124,14 +138,6 @@ public class Train implements Comparable<Train> {
         }
     }
 
-    // E-/ K-flag
-    void setSuccesor(final Train t) {
-        if (this.details != null) {
-            this.details.target = null;
-        }
-        this.succ = t;
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -143,22 +149,30 @@ public class Train implements Comparable<Train> {
         return this.id.toString() + ":" + this.name;
     }
 
+    public boolean updateByDetails(final StsTrainDetailsInterface details) {
+        if (Details.class.isAssignableFrom(details.getClass())) {
+            return updateByDetails((Details) details);
+        }
+
+        throw new UnsupportedOperationException();
+    }
+
     public boolean updateByDetails(final Details details) {
         final Schedule schedule = this.schedule;
-        if (this.details.source == null || this.pred != null) {
-            details.source = null;
+        if (!this.details.isSourceValid() || this.pred != null) {
+            details.invalidateSource();
         }
-        if (this.details.target == null || this.succ != null) {
-            details.target = null;
+        if (!this.details.isTargetValid() || this.succ != null) {
+            details.invalidateTarget();
         }
         assert schedule != null;
         this.details = details;
         if (schedule != null) {
-            if (schedule.updatePos(details.plattform)) {
-                if (details.atPlattform) {
+            if (schedule.updatePos(details.getPlatform())) {
+                if (details.isAtPlatform()) {
                     final ScheduleFlags flags = schedule.getFlags();
                     if (flags.getE() != null) {
-                        flags.getE().details.setVisible();
+                        ((Train) flags.getE()).details.setVisible();
                     }
                 }
                 return true;
@@ -168,37 +182,31 @@ public class Train implements Comparable<Train> {
     }
 
     public void updateByEvent(final Event event) {
-        if (this.details.source == null || this.pred != null) {
-            event.getDetails().source = null;
-        }
-        if (this.details.target == null || this.succ != null) {
-            event.getDetails().target = null;
-        }
-        this.details = event.getDetails();
-        this.schedule.updatePos(event.getPlattform());
+        updateByDetails(event.getDetails());
+
         switch (event.getType()) {
             case ARRIVAL:
-                this.lastArrived = event.getPlattform();
-                final Train eTrain = schedule.getCurrentEntry().getFlags().getE();
-                final Train fTrain = schedule.getCurrentEntry().getFlags().getF();
+                this.lastArrived = event.getDetails().getPlatform();
+                final Train eTrain = (Train) this.schedule.getCurrentEntry().getFlags().getE();
+                final Train fTrain = (Train) this.schedule.getCurrentEntry().getFlags().getF();
                 if (eTrain != null) {
-                    eTrain.details.source = details.source;
+                    eTrain.details.copySource(this.details);
                     eTrain.updateByEvent(event);
                 }
                 if (fTrain != null) {
-                    fTrain.details.source = details.source;
+                    fTrain.details.copySource(this.details);
                     fTrain.updateByEvent(event);
                 }
                 break;
             case DEPARTURE:
-                if (this.details.atPlattform) {
+                if (this.details.isAtPlatform()) {
                     break;
                 }
                 if (this.lastArrived != null
-                        & this.details.plattform == this.lastArrived) {
+                        & this.details.getPlatform() == this.lastArrived) {
                     this.schedule.advance();
                 }
-                final Train kTrain = schedule.getCurrentEntry().getFlags().getK();
+                final Train kTrain = (Train) this.schedule.getCurrentEntry().getFlags().getK();
                 if (kTrain != null) {
                     kTrain.details.setInvisible();
                 }
@@ -229,15 +237,15 @@ public class Train implements Comparable<Train> {
     // E- / F-flag
     void setPredecessor(final Train t) {
         if (this.details != null) {
-            this.details.source = null;
+            this.details.invalidateSource();
         }
         this.pred = t;
     }
 
-    public Event.EventType getRegisteredEventType() {
-        if (null == registeredEvent) {
-            return Event.EventType.NULL;
+    @Override
+    public <T extends StsTrainInterface> void setPredecessor(final T predecessor) {
+        if (Train.class.isAssignableFrom(predecessor.getClass())) {
+            this.setPredecessor((Train) predecessor);
         }
-        return registeredEvent.getType();
     }
 }

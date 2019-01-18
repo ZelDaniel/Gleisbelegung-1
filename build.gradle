@@ -94,12 +94,20 @@ jacocoTestCoverageVerification {
         rule {
             element = 'CLASS'
             includes = [
-              //'org.gleisbelegung.collection.*',
-              //'org.gleisbelegung.sts.*',
               'org.gleisbelegung.utils.*'
             ]
             limit {
                 minimum = 0.9
+            }
+        }
+        rule {
+            element = 'CLASS'
+            includes = [
+              //'org.gleisbelegung.collection.*',
+              'org.gleisbelegung.sts.*',
+            ]
+            limit {
+                minimum = 0.8
             }
         }
         rule {

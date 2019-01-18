@@ -1,13 +1,18 @@
 package org.gleisbelegung.database;
 
-import org.gleisbelegung.sts.Train;
-import org.gleisbelegung.sts.Trainlist;
 
+import java.util.Iterator;
 import java.util.List;
 
 public interface StSDataInterface {
 
-    void setTrainList(Trainlist trainList);
+    <T extends StsScheduleEntryInterface> Iterator<T> getScheduleIterator();
 
-    List<Train> getTrainList();
+    int getSimTime();
+
+    void registerPlatform(StsPlatformInterface platform);
+
+    void registerSchedule(StsScheduleInterface schedule);
+
+    <T extends StsTrainInterface> List<T> getTrainList();
 }

@@ -72,6 +72,7 @@ public class Trainlist implements Iterable<Train> {
 
     private void remove(final Integer id, final Train old) {
         this.history.put(id, old);
+        old.removeCallback();
     }
 
     @Threadsafe

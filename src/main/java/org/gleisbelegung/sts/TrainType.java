@@ -117,7 +117,7 @@ public class TrainType implements Comparable<TrainType> {
             case "TGV":
             case "THA":
             case "OEC":
-                return ICE.get("OEC");
+                return ICE.get(string);
 
             case "IC":
             case "EC":
@@ -218,6 +218,9 @@ public class TrainType implements Comparable<TrainType> {
     }
 
     private TrainType get(final String name) {
+        if (name.equals(this.name)) {
+            return this;
+        }
         TrainType tt = this.map.get(name);
         if (tt == null) {
             tt = new TrainType(name, this);

@@ -1,10 +1,12 @@
 package org.gleisbelegung.sts;
 
 import org.gleisbelegung.database.StsPlatformInterface;
+import org.gleisbelegung.database.StsScheduleInterface;
 import org.gleisbelegung.database.StsTrainDetailsInterface;
 import org.gleisbelegung.database.StsTrainInterface;
 import org.gleisbelegung.xml.XML;
 
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class Train implements Comparable<Train>, StsTrainInterface {
 
-    private static final Pattern trainNamePattern = Pattern.compile("^([^0-9]*)( )?([0-9]+)");
+    private static final Pattern trainNamePattern = Pattern.compile("^([^0-9]*)( )?([0-9]+)(.*)");
     private final Integer id;
     private final String name;
     private final TrainType name_traintype;
@@ -93,16 +95,16 @@ public class Train implements Comparable<Train>, StsTrainInterface {
     }
 
     @Override
-    public Schedule getSchedule() {
-        return this.schedule;
+    public <T extends StsScheduleInterface> T getSchedule() {
+        return (T) this.schedule;
     }
 
     public void setSchedule(final Schedule schedule) {
         this.schedule = schedule;
     }
 
-    public Train getSuccessor() {
-        return this.succ;
+    public <T extends StsTrainInterface> T getSuccessor() {
+        return (T) this.succ;
     }
 
     // E-/ K-flag
@@ -165,7 +167,6 @@ public class Train implements Comparable<Train>, StsTrainInterface {
         if (!this.details.isTargetValid() || this.succ != null) {
             details.invalidateTarget();
         }
-        assert schedule != null;
         this.details = details;
         if (schedule != null) {
             if (schedule.updatePos(details.getPlatform())) {
@@ -206,9 +207,8 @@ public class Train implements Comparable<Train>, StsTrainInterface {
                         & this.details.getPlatform() == this.lastArrived) {
                     this.schedule.advance();
                 }
-                final Train kTrain = (Train) this.schedule.getCurrentEntry().getFlags().getK();
-                if (kTrain != null) {
-                    kTrain.details.setInvisible();
+                if (this.schedule.hasPrevEntry()) {
+                    this.schedule.getPrevEntry().getFlags().invalidateG(this.schedule.getPrevEntry().getFlags().getKReversed());
                 }
                 break;
             case ENTER:
@@ -219,15 +219,6 @@ public class Train implements Comparable<Train>, StsTrainInterface {
                 break;
 
         }
-    }
-
-    private void updateRemovedPredecessor(final Train removedTrain) {
-        if (this.pred == removedTrain) {
-            if (!this.pred.details.isVisible()) {
-                this.pred.details.setVisible();
-            }
-        }
-        this.schedule.getFlags().invalidateG(removedTrain);
     }
 
     public Train getPredecessor() {
@@ -248,4 +239,21 @@ public class Train implements Comparable<Train>, StsTrainInterface {
             this.setPredecessor((Train) predecessor);
         }
     }
+
+    void removeCallback() {
+        if (this.schedule != null) {
+            if (this.schedule.getLastEntry().getFlags().hasK()) {
+                for (Iterator<ScheduleEntry> seIter = this.schedule.getLastEntry()
+                        .getFlags()
+                        .getK()
+                        .getSchedule()
+                        .iterator();
+                        seIter.hasNext();
+                ) {
+                    seIter.next().getFlags().invalidateG(this);
+                }
+            }
+        }
+    }
+
 }

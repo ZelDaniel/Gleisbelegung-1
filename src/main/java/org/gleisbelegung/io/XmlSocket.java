@@ -1,11 +1,13 @@
 package org.gleisbelegung.io;
 
+import org.gleisbelegung.database.Database;
 import org.gleisbelegung.xml.MalformedXMLException;
 import org.gleisbelegung.xml.XML;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
 public class XmlSocket {
 
@@ -16,7 +18,16 @@ public class XmlSocket {
     }
 
     public XML read() throws IOException, MalformedXMLException {
-        return XML.read(socket.getInputStream(), Charset.defaultCharset());
+        XML xml = XML.read(socket.getInputStream(), Charset.defaultCharset());
+        int simtime = Database.getInstance().getSimTime();
+        System.out.printf("%02d:%02d:%02d: %s\n",
+                TimeUnit.SECONDS.toHours(simtime),
+                TimeUnit.SECONDS.toMinutes(simtime) % 60,
+                TimeUnit.SECONDS.toSeconds(simtime) % 60,
+                xml.toString()
+        );
+
+        return xml;
     }
 
     public void write(XML xml) throws IOException {

@@ -20,13 +20,12 @@ public class ScheduleEntry implements StsScheduleEntryInterface {
 
     public static final ScheduleEntry EMPTY =
             new ScheduleEntry(Platform.EMPTY, Platform.EMPTY, 0, 0, ScheduleFlags.EMPTY);
-    private static StsScheduleEntry tempEntry = new StsScheduleEntry();
     private final int arrival, depature;
     private final ScheduleFlags flags;
     private final Platform platformPlanned;
     private Platform platform;
 
-    private ScheduleEntry(final Platform platformPlanned, final Platform platformActual, final int depature,
+    ScheduleEntry(final Platform platformPlanned, final Platform platformActual, final int depature,
             final int arrival, final ScheduleFlags flags) {
         this.platform = platformActual;
         this.platformPlanned = platformPlanned;
@@ -135,14 +134,12 @@ public class ScheduleEntry implements StsScheduleEntryInterface {
         } else {
             arr = ScheduleEntry.timeToMinutes(arrS);
         }
-        tempEntry.arr = arr;
-        tempEntry.dep = dep;
-        tempEntry.platform = pPlan;
         final ScheduleFlags flags =
-                ScheduleFlags.parse(xml, train, trains, missingIDs, tempEntry);
+                ScheduleFlags.parse(xml);
+        ScheduleEntry se = new ScheduleEntry(pPlan, pActual, dep, arr, flags);
+        flags.linkWithEntry(se, train, trains);
 
-
-        return new ScheduleEntry(pPlan, pActual, dep, arr, flags);
+        return se;
     }
 
     private static int timeToMinutes(final String s) {

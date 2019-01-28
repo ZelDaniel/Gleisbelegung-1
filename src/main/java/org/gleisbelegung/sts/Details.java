@@ -18,7 +18,7 @@ public class Details implements StsTrainDetailsInterface {
     private long updated_at = System.currentTimeMillis();
     private boolean visible;
 
-    private Details(final String name, final Platform platformPlanned, final Platform platform,
+    Details(final String name, final Platform platformPlanned, final Platform platform,
             final String target, final String source, final int delay,
             final boolean atPlatform, final boolean visible) {
         this.name = name;

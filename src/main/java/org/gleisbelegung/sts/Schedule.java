@@ -22,7 +22,7 @@ public class Schedule implements StsScheduleInterface {
     private final WeakReference<StsTrainInterface> train;
     private int pos = 0;
 
-    private Schedule(final List<ScheduleEntry> entries, final StsTrainInterface train) {
+    Schedule(final List<ScheduleEntry> entries, final StsTrainInterface train) {
         this.entries = entries;
         this.train = new WeakReference<>(train);
     }
@@ -193,5 +193,9 @@ public class Schedule implements StsScheduleInterface {
 
     public StsTrainInterface getTrain() {
         return this.train.get();
+    }
+
+    boolean hasPrevEntry() {
+        return this.entries.size() > 0 && this.pos != 0;
     }
 }

@@ -13,9 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class ScheduleFlagsTest {
@@ -23,23 +21,19 @@ public class ScheduleFlagsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseWithWrongKey() {
-        ScheduleFlags.parse(XML.generateEmptyXML("some.xml"), null, null, null, null);
+        ScheduleFlags.parse(XML.generateEmptyXML("some.xml"));
     }
 
     @Test
     public void testParseEmpty() {
-        ScheduleFlags.parse(XML.generateEmptyXML("gleis"), null, null, null, null);
+        ScheduleFlags.parse(XML.generateEmptyXML("gleis"));
     }
 
     @Test
     public void testParseA() {
         assertTrue(
                 ScheduleFlags.parse(
-                        XML.generateEmptyXML("gleis").set("flags", "A"),
-                        null,
-                        null,
-                        null,
-                        null
+                        XML.generateEmptyXML("gleis").set("flags", "A")
                 )
                 .hasA()
         );
@@ -49,11 +43,7 @@ public class ScheduleFlagsTest {
     public void testParseD() {
         assertTrue(
                 ScheduleFlags.parse(
-                        XML.generateEmptyXML("gleis").set("flags", "D"),
-                        null,
-                        null,
-                        null,
-                        null
+                        XML.generateEmptyXML("gleis").set("flags", "D")
                 )
                 .hasD()
         );
@@ -63,121 +53,55 @@ public class ScheduleFlagsTest {
     public void testParseE() {
         XML xml = XML.generateEmptyXML("gleis").set("flags", "E(2)");
         final Map<Integer, StsTrainInterface> trains = new HashMap<>();
-        final StsTrain trainWithEFlag = new StsTrain(1);
 
         trains.put(2, new StsTrain(2));
 
-        ScheduleFlags flags = ScheduleFlags.parse(
-                xml,
-                null,
-                null,
-                null,
-                null
-        );
+        ScheduleFlags flags = ScheduleFlags.parse(xml);
 
         assertNull(flags.getE());
         assertTrue(flags.hasE());
 
-        flags = ScheduleFlags.parse(
-                xml,
-                trainWithEFlag,
-                trains,
-                null,
-                null
-        );
-        assertNotNull(flags.getE());
+        flags = ScheduleFlags.parse(xml);
         assertTrue(flags.hasE());
 
-        ScheduleFlags.parse(xml, trainWithEFlag,  trains, null, null);
-        assertEquals(Integer.valueOf(2), trainWithEFlag.successor.getId());
-        assertEquals(trainWithEFlag, ((StsTrain) trainWithEFlag.successor).predecessor);
+        ScheduleFlags.parse(xml);
     }
 
     @Test
     public void testParseF() {
         XML xml = XML.generateEmptyXML("gleis").set("flags", "F(2)");
         final Map<Integer, StsTrainInterface> trains = new HashMap<>();
-        final StsTrain trainWithFFlag = new StsTrain(1);
 
         trains.put(2, new StsTrain(2));
 
-        ScheduleFlags flags = ScheduleFlags.parse(xml, null, null, null, null);
+        ScheduleFlags flags = ScheduleFlags.parse(xml);
         assertNull(flags.getF());
         assertTrue(flags.hasF());
 
-        flags = ScheduleFlags.parse(xml, trainWithFFlag, trains, null, null);
-        assertNotNull(flags.getF());
+        flags = ScheduleFlags.parse(xml);
         assertTrue(flags.hasF());
-        assertEquals(trainWithFFlag, ((StsTrain) trains.get(2)).predecessor);
     }
 
     @Test
     public void testParseK() {
         XML xml = XML.generateEmptyXML("gleis").set("flags", "K(2)");
         final Map<Integer, StsTrainInterface> trains = new HashMap<>();
-        final StsTrain trainWithKFlag = new StsTrain(1);
 
         trains.put(2, new StsTrain(2));
 
-        ScheduleFlags flags = ScheduleFlags.parse(xml, null, null, null, new StsScheduleEntryInterface() {
-            @Override
-            public int getArrival() {
-                return 0;
-            }
-
-            @Override
-            public int getDepature() {
-                return 0;
-            }
-
-            @Override
-            public StsScheduleFlagsInterface getFlags() {
-                return new ScheduleFlags();
-            }
-
-            @Override
-            public StsPlatformInterface getPlatformPlanned() {
-                return null;
-            }
-        });
+        ScheduleFlags flags = ScheduleFlags.parse(xml);
         assertNull(flags.getK());
         assertTrue(flags.hasK());
 
-        flags = ScheduleFlags.parse(xml, trainWithKFlag, trains, null, new StsScheduleEntryInterface() {
-            @Override
-            public int getArrival() {
-                return 0;
-            }
-
-            @Override
-            public int getDepature() {
-                return 0;
-            }
-
-            @Override
-            public StsScheduleFlagsInterface getFlags() {
-                return null;
-            }
-
-            @Override
-            public StsPlatformInterface getPlatformPlanned() {
-                return null;
-            }
-        });
-        assertNotNull(flags.getK());
+        flags = ScheduleFlags.parse(xml);
         assertTrue(flags.hasK());
-        assertEquals(trainWithKFlag.successor, trains.get(2));
     }
 
     @Test
     public void testParseL() {
         assertTrue(
                 ScheduleFlags.parse(
-                        XML.generateEmptyXML("gleis").set("flags", "L"),
-                        null,
-                        null,
-                        null,
-                        null
+                        XML.generateEmptyXML("gleis").set("flags", "L")
                 )
                 .hasL()
         );
@@ -187,11 +111,7 @@ public class ScheduleFlagsTest {
     public void testParseR() {
             assertTrue(
                     ScheduleFlags.parse(
-                            XML.generateEmptyXML("gleis").set("flags", "R2"),
-                            null,
-                            null,
-                            null,
-                            null
+                            XML.generateEmptyXML("gleis").set("flags", "R2")
                     )
                     .hasR()
             );
@@ -201,11 +121,7 @@ public class ScheduleFlagsTest {
     public void testParseW() {
         assertTrue(
                 ScheduleFlags.parse(
-                        XML.generateEmptyXML("gleis").set("flags", "W[1][1]"),
-                        null,
-                        null,
-                        null,
-                        null
+                        XML.generateEmptyXML("gleis").set("flags", "W[1][1]")
                 )
                 .hasW()
         );
@@ -218,32 +134,7 @@ public class ScheduleFlagsTest {
             trains.put(i, new StsTrain(i));
         }
         ScheduleFlags flags = ScheduleFlags.parse(
-                XML.generateEmptyXML("gleis").set("flags", "W[1][4]B1AE4(2)F2(4)K5(3)R6P[l]"),
-                new StsTrain(8),
-                trains,
-                null,
-                new StsScheduleEntryInterface() {
-
-                    @Override
-                    public int getArrival() {
-                        return -1;
-                    }
-
-                    @Override
-                    public int getDepature() {
-                        return 0;
-                    }
-
-                    @Override
-                    public StsScheduleFlagsInterface getFlags() {
-                        return null;
-                    }
-
-                    @Override
-                    public StsPlatformInterface getPlatformPlanned() {
-                        return new StsPlatformInterface() {};
-                    }
-                }
+                XML.generateEmptyXML("gleis").set("flags", "W[1][4]B1AE4(2)F2(4)K5(3)R6P[l]")
         );
         assertTrue(flags.hasW() && flags.hasA() && flags.hasR() && flags.hasK() && flags.hasE());
         assertTrue(flags.toString().matches("^[AEFKRW]+$"));

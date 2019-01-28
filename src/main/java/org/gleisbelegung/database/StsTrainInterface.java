@@ -4,9 +4,9 @@ public interface StsTrainInterface {
 
     Integer getId();
 
-    StsTrainDetailsInterface getDetails();
+    <T extends StsTrainDetailsInterface> T getDetails();
 
-    StsScheduleInterface getSchedule();
+    <T extends StsScheduleInterface> T getSchedule();
 
     <T extends StsTrainInterface> void setPredecessor(T predecessor);
 

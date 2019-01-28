@@ -1,6 +1,5 @@
 package org.gleisbelegung.sts;
 
-import org.gleisbelegung.database.StsPlatformInterface;
 import org.gleisbelegung.database.StsScheduleEntryInterface;
 import org.gleisbelegung.database.StsScheduleFlagsInterface;
 import org.gleisbelegung.database.StsScheduleInterface;
@@ -9,7 +8,6 @@ import org.gleisbelegung.xml.XML;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 
 public class ScheduleFlags implements StsScheduleFlagsInterface {
@@ -31,9 +29,7 @@ public class ScheduleFlags implements StsScheduleFlagsInterface {
     protected ScheduleFlags() {
     }
 
-    private ScheduleFlags(final String init, final StsTrainInterface train,
-            final Map<Integer, ? extends StsTrainInterface> trains, final Set<Integer> missingIds,
-            final StsScheduleEntryInterface schedule) {
+    ScheduleFlags(final String init) {
         if (init == null) {
             return;
         }
@@ -73,19 +69,6 @@ public class ScheduleFlags implements StsScheduleFlagsInterface {
                     final int endFPos = init.indexOf(')', startFPos);
                     final String f = init.substring(startFPos, endFPos);
                     this.fId = Integer.valueOf(f);
-                    if (trains != null) {
-                        this.f = trains.get(this.fId);
-                        if (this.f == null || this.f.getDetails() == null) {
-                            if (missingIds != null) {
-                                missingIds.add(this.fId);
-                            }
-                        } else if (train.getDetails() == null) {
-                            missingIds.add(train.getId());
-                        } else {
-                            this.f.setPredecessor(train);
-                            // TODO set f_reverse
-                        }
-                    }
                     i = endFPos;
                     continue;
 
@@ -94,42 +77,6 @@ public class ScheduleFlags implements StsScheduleFlagsInterface {
                     final int endKPos = init.indexOf(')', startKPos);
                     final String k = init.substring(startKPos, endKPos);
                     this.kId = Integer.valueOf(k);
-                    if (trains != null) {
-                        this.k = trains.get(this.kId);
-                        if (this.k == null || this.k.getDetails() == null) {
-                            missingIds.add(this.kId);
-                        } else if (train.getDetails() == null) {
-                            missingIds.add(train.getId());
-                        } else {
-                            train.setSuccessor(this.k);
-                            final StsScheduleInterface kSchedule = this.k.getSchedule();
-                            StsScheduleEntryInterface lastMatch = null;
-                            if (kSchedule == null) {
-                                if (missingIds != null) {
-                                    missingIds.add(this.kId);
-                                }
-                            } else {
-                                for (final Iterator<StsScheduleEntryInterface> iter =
-                                        kSchedule.iterator(); iter.hasNext(); ) {
-                                    final StsScheduleEntryInterface kse = iter.next();
-                                    if (kse.getPlatformPlanned()
-                                            .equals(schedule.getPlatformPlanned())) {
-                                        final int kDep = kse.getDepature();
-                                        if (kDep < schedule.getArrival()) {
-                                            break;
-                                        }
-                                        lastMatch = kse;
-                                    }
-                                }
-                            }
-                            if (lastMatch != null) {
-                                final StsScheduleFlagsInterface flagsOther = lastMatch.getFlags();
-                                if (ScheduleFlags.class.isAssignableFrom(flagsOther.getClass())) {
-                                    ((ScheduleFlags) lastMatch.getFlags()).k_reverse = train;
-                                }
-                            }
-                        }
-                    }
                     i = endKPos;
                     continue;
 
@@ -138,15 +85,6 @@ public class ScheduleFlags implements StsScheduleFlagsInterface {
                     final int endEPos = init.indexOf(')', startEPos);
                     final String e = init.substring(startEPos, endEPos);
                     this.eId = Integer.valueOf(e);
-                    if (trains != null) {
-                        this.e = trains.get(this.eId);
-                        if (this.e == null || train.getDetails() == null || this.e.getDetails() == null) {
-                            missingIds.add(this.eId);
-                        } else {
-                            train.setSuccessor(this.e);
-                            this.e.setPredecessor(train);
-                        }
-                    }
                     i = endEPos;
                     continue;
 
@@ -183,15 +121,80 @@ public class ScheduleFlags implements StsScheduleFlagsInterface {
         }
     }
 
-    public static ScheduleFlags parse(final XML xml, final StsTrainInterface train,
-            final Map<Integer, ? extends StsTrainInterface> trains, final Set<Integer> missingIds,
-            final StsScheduleEntryInterface scheduleEntry) {
+    public static ScheduleFlags parse(final XML xml) {
         if (!xml.getKey().equals("gleis")) {
             throw new IllegalArgumentException();
         }
-        final ScheduleFlags flags = new ScheduleFlags(xml.get("flags"), train,
-                trains, missingIds, scheduleEntry);
+        final ScheduleFlags flags = new ScheduleFlags(xml.get("flags"));
         return flags;
+    }
+
+    void linkWithEntry(ScheduleEntry se, StsTrainInterface train, Map<Integer, ? extends StsTrainInterface> trains) {
+        if (train.getDetails() == null) {
+            return;
+        }
+        if (hasK()) {
+            this.k = trains.get(this.kId);
+            if (this.k != null) {
+                linkK(se, train);
+            }
+        }
+        if (hasF()) {
+            this.f = trains.get(this.fId);
+            if (this.f != null) {
+                linkF(se, train);
+            }
+        }
+        if (hasE()) {
+            this.e = trains.get(this.eId);
+            if (this.e != null) {
+                linkE(se, train);
+            }
+        }
+    }
+
+    private void linkE(ScheduleEntry se, StsTrainInterface train) {
+        if (this.e.getDetails() != null) {
+            train.setSuccessor(this.e);
+            this.e.setPredecessor(train);
+        }
+    }
+
+
+    private void linkF(ScheduleEntry se, StsTrainInterface train) {
+        if (this.f.getDetails() != null) {
+            this.f.setPredecessor(train);
+            // TODO set f_reverse
+        }
+    }
+
+
+    private void linkK(ScheduleEntry se, StsTrainInterface train) {
+        if (this.k.getDetails() != null) {
+            train.setSuccessor(this.k);
+            final StsScheduleInterface kSchedule = this.k.getSchedule();
+            StsScheduleEntryInterface lastMatch = null;
+            if (kSchedule != null) {
+                for (final Iterator<StsScheduleEntryInterface> iter =
+                        kSchedule.iterator(); iter.hasNext(); ) {
+                    final StsScheduleEntryInterface kse = iter.next();
+                    if (kse.getPlatformPlanned()
+                            .equals(se.getPlatformPlanned())) {
+                        final int kDep = kse.getDepature();
+                        if (kDep < se.getArrival()) {
+                            break;
+                        }
+                        lastMatch = kse;
+                    }
+                }
+            }
+            if (lastMatch != null) {
+                final StsScheduleFlagsInterface flagsOther = lastMatch.getFlags();
+                if (ScheduleFlags.class.isAssignableFrom(flagsOther.getClass())) {
+                    ((ScheduleFlags) lastMatch.getFlags()).k_reverse = train;
+                }
+            }
+        }
     }
 
     @Override
@@ -263,6 +266,10 @@ public class ScheduleFlags implements StsScheduleFlagsInterface {
 
     public boolean hasD() {
         return this.d;
+    }
+
+    public StsTrainInterface getKReversed() {
+        return this.k_reverse;
     }
 
     public void invalidateG(final StsTrainInterface train) {

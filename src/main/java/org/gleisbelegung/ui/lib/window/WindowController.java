@@ -24,7 +24,7 @@ public class WindowController {
     /**
      * Adds a {@link PanelInterface Panel} to a Window
      *
-     * @param panel
+     * @param panel panel to add to the window
      * @return initialized and styled {@link javafx.scene.layout.Pane Pane}
      */
     public Pane addPanel(PanelInterface panel) {

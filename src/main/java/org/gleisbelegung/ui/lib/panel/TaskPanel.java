@@ -45,7 +45,7 @@ public abstract class TaskPanel extends Panel implements TaskPanelInterface {
 
     /**
      * terminates and removes a task by object
-     * @param task
+     * @param task task to be stopped and removed
      */
     public void removeTask(IntervalTask task){
         task.stopExecution();

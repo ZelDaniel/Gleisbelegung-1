@@ -5,7 +5,7 @@ import javafx.scene.layout.Pane;
 
 /**
  * Interface for Panels in order to bundle the most common actions
- * @implNote Do not implement this interface: Better extend the {@link Panel} in order to receive full functionality
+ * Do not implement this interface: Better extend the {@link Panel} in order to receive full functionality
  */
 public interface PanelInterface {
 

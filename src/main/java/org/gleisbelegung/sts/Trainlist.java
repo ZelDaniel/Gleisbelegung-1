@@ -44,12 +44,12 @@ public class Trainlist implements Iterable<Train> {
      *
      * <ul>
      * <li> This method is NOT threadsafe.</li>
-     *
      * <li> The returned iterator is backed up by underlying list
-     * => ConcurrentModificationException might be thrown.</li>
+     * =&gt; ConcurrentModificationException might be thrown.</li>
      * </ul>
-     *
+     * <p>
      * Use {@link #toList()} to get a thread safe iterator.
+     * </p>
      */
     @Override
     public Iterator<Train> iterator() {

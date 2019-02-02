@@ -70,7 +70,7 @@ public class Train implements Comparable<Train>, StsTrainInterface {
     }
 
     public String formatDelay() {
-       return this.details.formatDelay();
+        return this.details.formatDelay();
     }
 
     @Override
@@ -129,7 +129,9 @@ public class Train implements Comparable<Train>, StsTrainInterface {
     /**
      * Updates the position in the schedule according to details
      *
-     * @param details
+     * This method can be also used as setter for details.
+     *
+     * @param details The last received details for this train
      */
     public void setPosition(final Details details) {
         final Schedule schedule = this.schedule;

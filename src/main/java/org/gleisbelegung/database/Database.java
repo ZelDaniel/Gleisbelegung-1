@@ -57,7 +57,6 @@ public class Database implements StSDataInterface {
     /**
      * @param realTime unix timestamp (milliseconds since 1970-01-01 00:00:00 UTC)
      * @param simTime milliseconds since midnight
-     * @return
      */
     @Threadsafe
     public void setSimTime(long realTime, long simTime) {
@@ -133,7 +132,7 @@ public class Database implements StSDataInterface {
     /**
      * This method may be called from Trainlist only.
      *
-     * @param trainList
+     * @param trainList The only existing instance of Trainlist
      */
     @Threadsafe
     public void setTrainList(Trainlist trainList) {

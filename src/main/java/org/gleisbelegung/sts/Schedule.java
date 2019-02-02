@@ -59,7 +59,7 @@ public class Schedule implements StsScheduleInterface {
     }
 
     /**
-     * @return
+     * @return The following entry for {@link ScheduleEntry#EMPTY} if there is none
      */
     public ScheduleEntry getNextEntry() {
         if (this.pos < 0) {
@@ -76,7 +76,7 @@ public class Schedule implements StsScheduleInterface {
     /**
      * Returns the next entry where the L flag is set
      *
-     * @return
+     * @return The first entry with the L flag set or null if there is none
      */
     public ScheduleEntry getNextL() {
         if (this.pos < 0) {
@@ -94,7 +94,7 @@ public class Schedule implements StsScheduleInterface {
     /**
      * Returns the next entry where the W flag is set
      *
-     * @return
+     * @return The first entry with the W flag set or null if there is none
      */
     public ScheduleEntry getNextW() {
         if (this.pos < 0) {
@@ -112,7 +112,7 @@ public class Schedule implements StsScheduleInterface {
     /**
      * Returns the entry one position before current position
      *
-     * @return
+     * @return The previous entry for {@link ScheduleEntry#EMPTY} if there is none
      */
     public ScheduleEntry getPrevEntry() {
         if (this.pos < 0) {
@@ -132,7 +132,7 @@ public class Schedule implements StsScheduleInterface {
     /**
      * Updates the pointer for current position
      *
-     * @param details
+     * @param details The details of an event or details for the same train
      */
     public void setPos(final Details details) {
         for (int i = 0; i < this.entries.size(); ++i) {

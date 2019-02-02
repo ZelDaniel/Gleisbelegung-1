@@ -10,8 +10,6 @@ import java.util.Map;
  */
 public class TrainType implements Comparable<TrainType> {
 
-    private static final Map<String, TrainType> valueMap = new HashMap<>();
-
     /*
      * List of train types order of declaration is in descending order of priority
      */
@@ -26,14 +24,14 @@ public class TrainType implements Comparable<TrainType> {
     public static final TrainType SDZ = new TrainType("SDZ");
     public static final TrainType IRC = new TrainType("IRC");
     public static final TrainType GZ = new TrainType("GZ");
-    public static final TrainType OTHER = new TrainType("");
+    public static final TrainType OTHER = new TrainType("OTHER");
     public static final TrainType S = new TrainType("S");
     /* trains with no passengers below this line */
     public static final TrainType LR = new TrainType("LR");
-    public static final TrainType TFZ = new TrainType("TZF");
+    public static final TrainType TFZ = new TrainType("TFZ");
     public static final TrainType BAUZ = new TrainType("BAUZ");
     public static final TrainType RF = new TrainType("RF");
-
+    private static final Map<String, TrainType> valueMap = new HashMap<>();
     private final String name;
     private final Map<String, TrainType> map = new HashMap<>();
     private final int ord;
@@ -93,6 +91,7 @@ public class TrainType implements Comparable<TrainType> {
             case "FZT":
             case "GAG":
             case "GC":
+            case "GZ":
             case "ICG":
             case "ICL":
             case "IKE":
@@ -193,24 +192,6 @@ public class TrainType implements Comparable<TrainType> {
             default:
                 return OTHER.get(string);
         }
-    }
-
-    public static Iterator<TrainType> valueOfBase(final String string) {
-        final TrainType tt;
-        final ArrayList<TrainType> l = new ArrayList<>();
-        if (!string.endsWith("*")) {
-            tt = valueOf(string);
-            if (tt != null) {
-                l.add(tt);
-            }
-        } else {
-            tt = valueOf(string.substring(0, string.length() - 1));
-            if (tt != null) {
-                l.add(tt);
-                l.addAll(tt.map.values());
-            }
-        }
-        return l.iterator();
     }
 
     public static TrainType valueOf(final String string) {

@@ -82,4 +82,20 @@ public class DetailsTest {
         assertFalse(d.isVisible());
         assertTrue(Details.parse(minimalXml.set("sichtbar", "true")).isVisible());
     }
+
+    @Test
+    public void testToString() throws Exception {
+        assertEquals("null null -> null 1  X", Details.parse(minimalXml).toString());
+        XML initXML = XML.parse(minimalXml.toString())
+                .set("gleis", "1")
+                .set("name", "RB 1")
+                .set("plan", "2")
+                .set("von", "A")
+                .set("nach", "B")
+                .set("amgleis", "true")
+                .set("sichtbar", "true")
+                .set("verspaetung", "-1");
+        assertEquals("RB 1 A -> B -1 -", Details.parse(initXML).toString());
+        assertEquals("RB 1 A -> B -1 ", Details.parse(initXML.set("amgleis", "false")).toString());
+    }
 }

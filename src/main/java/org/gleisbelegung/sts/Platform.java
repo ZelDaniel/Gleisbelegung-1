@@ -26,21 +26,6 @@ public class Platform implements StsPlatformInterface {
         this.name = name;
     }
 
-    public boolean equals(Object o) {
-        if (Platform.class.isAssignableFrom(o.getClass())) {
-            return this.equals((Platform) o);
-        }
-
-        return false;
-    }
-
-    public boolean equals(Platform o) {
-        if (this.name == null) {
-            return o.name == null;
-        }
-        return name.equals(o.name);
-    }
-
     public static Platform get(final String name) {
         final Platform pf = Platform.generatorMap.get(name);
         if (pf != null) {
@@ -69,6 +54,21 @@ public class Platform implements StsPlatformInterface {
         }
 
         return generated;
+    }
+
+    public boolean equals(Object o) {
+        if (Platform.class.isAssignableFrom(o.getClass())) {
+            return this.equals((Platform) o);
+        }
+
+        return false;
+    }
+
+    public boolean equals(Platform o) {
+        if (this.name == null) {
+            return o.name == null;
+        }
+        return name.equals(o.name);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.gleisbelegung.sts;
 
+import org.gleisbelegung.database.StsTrainInterface;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -7,8 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class TrainTest {
 
@@ -99,10 +102,16 @@ public class TrainTest {
         t.updateByEvent(new Event(Event.EventType.EXIT, t, d));
         assertEquals(d, t.getDetails());
         t.updateByEvent(new Event(Event.EventType.ARRIVAL, t, d));
-        assertEquals(d, t.getDetails());
+        d.toggleAtPlatform();
         t.updateByEvent(new Event(Event.EventType.DEPARTURE, t, d));
-        assertEquals(d, t.getDetails());
-    }
+        assertTrue(t.getDetails().isAtPlatform());
+        d.toggleAtPlatform();
+        t.updateByEvent(new Event(Event.EventType.DEPARTURE, t, d));
+        assertFalse(t.getDetails().isAtPlatform());
+        d.setInvisible();
+        t.updateByEvent(new Event(Event.EventType.ENTER, t, d));
+        assertFalse(t.getDetails().isVisible());
+}
 
     @Test
     public void testGetType() {
@@ -190,5 +199,16 @@ public class TrainTest {
 
         tWithKFlag.removeCallback();
         assertEquals("", sEntriesWithGFlag.iterator().next().getFlags().toString());
+    }
+
+    @Test
+    public void testSuccessorAndPredecessor() {
+        Train t1 = new Train(1, "RB 1");
+        Train t2 = new Train(2, "RB 2");
+        t1.setPosition(new Details("RB 1", null, null, "A", "B", 0, false, false));
+        t2.setPosition(new Details("RB 2", null, null, "C", "D", 0, false, false));
+        ((StsTrainInterface) t2).setPredecessor(t1);
+        assertEquals(null, t2.getDetails().from());
+        assertNotEquals(null, t1.getDetails().to());
     }
 }

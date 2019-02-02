@@ -106,8 +106,23 @@ jacocoTestCoverageVerification {
               //'org.gleisbelegung.collection.*',
               'org.gleisbelegung.sts.*',
             ]
+            excludes = [
+              // specified by following rule
+              'org.gleisbelegung.sts.TrainType',
+              'org.gleisbelegung.sts.ScheduleEntry.StsScheduleEntry',
+            ]
             limit {
                 minimum = 0.8
+            }
+        }
+        rule {
+            // reaches 39% coverage but with 0 missed lines
+            element = 'CLASS'
+            includes = [
+              'org.gleisbelegung.sts.TrainType',
+            ]
+            limit {
+                minimum = 0.38;
             }
         }
         rule {

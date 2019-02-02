@@ -6,6 +6,7 @@ import org.gleisbelegung.database.StsTrainInterface;
 import org.gleisbelegung.xml.XML;
 import org.junit.Test;
 
+import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertEquals;
 
 public class EventTest {
@@ -90,5 +91,26 @@ public class EventTest {
                 testTrain
                 ).getType()
         );
+    }
+
+    @Test
+    public void testGetters() {
+        long time = System.currentTimeMillis();
+        Event e = new Event(Event.EventType.ENTER, testTrain, time);
+        assertEquals(time, e.getTime());
+    }
+
+    @Test
+    public void testToString() {
+        assertEquals("einfahrt", Event.EventType.ENTER.getKey());
+        assertEquals("ENTER", new Event(Event.EventType.ENTER, testTrain, 0).toString());
+        assertEquals("ankunft", Event.EventType.ARRIVAL.getKey());
+        assertEquals("abfahrt", Event.EventType.DEPARTURE.getKey());
+        assertEquals("ausfahrt", Event.EventType.EXIT.getKey());
+    }
+
+    @Test
+    public void parseUnknown() {
+        assertNull(Event.parse(XML.generateEmptyXML("ereignis").set("art", "something weird"), testTrain));
     }
 }

@@ -34,19 +34,11 @@ public class ScheduleEntry implements StsScheduleEntryInterface {
         this.flags = flags;
     }
 
-    private static long getTimeDiff(final long timeNow, final int time, final int delay) {
-        final long diff;
-        if (time == 0) {
-            return Long.MAX_VALUE;
-        }
-        diff = TimeUnit.MINUTES.toMillis(time + delay) - timeNow;
-        return diff;
+    static long getTimeDiff(final long timeNow, final int time, final int delay) {
+        return TimeUnit.MINUTES.toMillis(time + delay) - timeNow;
     }
 
-    private static String timeDiffToString(long diff, final boolean neg) {
-        if (diff == Long.MAX_VALUE) {
-            return "";
-        }
+    static String timeDiffToString(long diff, final boolean neg) {
         final String signum;
         if (diff < 0) {
             diff = -diff;
@@ -60,7 +52,7 @@ public class ScheduleEntry implements StsScheduleEntryInterface {
         final int seconds = (int) (TimeUnit.MILLISECONDS.toSeconds(diff) % 60);
         final int minutes = (int) (TimeUnit.MILLISECONDS.toMinutes(diff));
         if (minutes / 60 >= 1000) {
-            return " - - - -";
+            return " - -- -";
         }
         if (minutes >= 100) {
             return signum + String.format(" %2d.%02d", minutes / 60,
@@ -142,7 +134,7 @@ public class ScheduleEntry implements StsScheduleEntryInterface {
         return se;
     }
 
-    private static int timeToMinutes(final String s) {
+    static int timeToMinutes(final String s) {
         final String[] parts = s.split(":");
         return (Integer.parseInt(parts[0]) * 60) + Integer.parseInt(parts[1]);
     }

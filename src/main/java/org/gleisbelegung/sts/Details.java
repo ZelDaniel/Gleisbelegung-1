@@ -110,7 +110,7 @@ public class Details implements StsTrainDetailsInterface {
     public String toString() {
         return this.name + " " + this.source + " -> " + this.target + " "
                 + this.delay + " "
-                + (!this.visible ? " X" : (this.atPlatform ? " -" : ""));
+                + (!this.visible ? " X" : (this.atPlatform ? "-" : ""));
     }
 
     public boolean isVisible() {

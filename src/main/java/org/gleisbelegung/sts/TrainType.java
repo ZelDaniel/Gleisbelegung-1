@@ -10,6 +10,14 @@ import java.util.Map;
  */
 public class TrainType implements Comparable<TrainType> {
 
+    private final String name;
+    private final Map<String, TrainType> map = new HashMap<>();
+    private final int ord;
+    private static final Map<String, TrainType> valueMap = new HashMap<>();
+
+    private final TrainType base;
+
+
     /*
      * List of train types order of declaration is in descending order of priority
      */
@@ -31,12 +39,6 @@ public class TrainType implements Comparable<TrainType> {
     public static final TrainType TFZ = new TrainType("TFZ");
     public static final TrainType BAUZ = new TrainType("BAUZ");
     public static final TrainType RF = new TrainType("RF");
-    private static final Map<String, TrainType> valueMap = new HashMap<>();
-    private final String name;
-    private final Map<String, TrainType> map = new HashMap<>();
-    private final int ord;
-
-    private final TrainType base;
 
     private TrainType(final String name) {
         this.name = name;
